@@ -1,227 +1,354 @@
 /**
  * Graphique d'évolution des angles au cours du mouvement
- * Affiche l'évolution d'un angle articulaire frame par frame
+ * Style: Oscilloscope / Néon Pro
  */
 
-import { useMemo } from 'react'
-import type { JointAngle, ThrowPhase } from '@/types'
+import { useMemo } from "react";
+import type { JointAngle, ThrowPhase } from "@/types";
 
 interface AngleChartProps {
-  angles: JointAngle[]
-  title: string
-  color?: string
-  height?: number
+  angles: JointAngle[];
+  title: string;
+  color?: string;
+  height?: number;
 }
 
 /**
- * Graphique SVG simple d'évolution d'angle
+ * Graphique SVG style Oscilloscope
  */
-export function AngleChart({ 
-  angles, 
+export function AngleChart({
+  angles,
   title,
-  color = '#3b82f6',
-  height = 200
+  color = "#00f2ff", // Cyan néon par défaut
+  height = 200,
 }: AngleChartProps) {
-  // Vérification des données
-  if (!angles || angles.length === 0) {
-    return (
-      <div className="space-y-2">
-        <h4 className="text-sm font-medium">{title}</h4>
-        <div className="border rounded bg-muted/10 p-8 text-center text-muted-foreground">
-          Aucune donnée disponible
-        </div>
-      </div>
-    )
-  }
-  
-  // Calculer les dimensions du graphique
-  const width = 600
-  const padding = { top: 20, right: 40, bottom: 30, left: 50 }
-  const chartWidth = width - padding.left - padding.right
-  const chartHeight = height - padding.top - padding.bottom
-  
-  // Extraire les valeurs min/max pour l'échelle
-  const angleValues = angles.map(a => a.angle)
-  const minAngle = Math.max(Math.min(...angleValues) - 10, 0)
-  const maxAngle = Math.min(Math.max(...angleValues) + 10, 180)
-  const angleRange = maxAngle - minAngle || 1
-  
-  // Convertir les angles en points SVG
+  const chartId = useMemo(() => Math.random().toString(36).substr(2, 9), []);
+
+  // Dimensions
+  const width = 600;
+  const padding = useMemo(
+    () => ({ top: 30, right: 50, bottom: 30, left: 50 }),
+    [],
+  );
+  const chartWidth = width - padding.left - padding.right;
+  const chartHeight = height - padding.top - padding.bottom;
+
+  // Echelle
+  const angleValues = angles.map((a) => a.angle);
+  const minAngle = Math.max(Math.min(...angleValues) - 15, 0);
+  const maxAngle = Math.min(Math.max(...angleValues) + 15, 180);
+  const angleRange = maxAngle - minAngle || 1;
+
+  // Points SVG
   const points = useMemo(() => {
-    if (angles.length === 0) return ''
-    
-    return angles.map((angle, index) => {
-      const x = padding.left + (index / (angles.length - 1)) * chartWidth
-      const y = padding.top + chartHeight - ((angle.angle - minAngle) / angleRange) * chartHeight
-      return `${x},${y}`
-    }).join(' ')
-  }, [angles, chartWidth, chartHeight, minAngle, angleRange, padding])
-  
-  // Couleurs des phases
+    if (angles.length === 0) return "";
+    return angles
+      .map((angle, index) => {
+        const x = padding.left + (index / (angles.length - 1)) * chartWidth;
+        const y =
+          padding.top +
+          chartHeight -
+          ((angle.angle - minAngle) / angleRange) * chartHeight;
+        return `${x},${y}`;
+      })
+      .join(" ");
+  }, [angles, chartWidth, chartHeight, minAngle, angleRange, padding]);
+
+  // Zone sous la courbe (dégradé)
+  const areaPath = useMemo(() => {
+    if (angles.length === 0) return "";
+    const firstPoint = `${padding.left},${padding.top + chartHeight}`;
+    const lastPoint = `${padding.left + chartWidth},${padding.top + chartHeight}`;
+    return `${firstPoint} ${points} ${lastPoint}`;
+  }, [points, padding, chartHeight, chartWidth, angles]);
+
+  // Couleurs des phases (Version Néon)
   const phaseColors: Record<ThrowPhase, string> = {
-    preparation: '#64748b',
-    wind_up: '#f59e0b',
-    acceleration: '#ef4444',
-    release: '#10b981',
-    follow_through: '#6366f1'
-  }
-  
+    preparation: "#94a3b8", // Slate 400
+    wind_up: "#fbbf24", // Amber 400
+    acceleration: "#ef4444", // Red 500
+    release: "#10b981", // Emerald 500
+    follow_through: "#818cf8", // Indigo 400
+  };
+
   // Zones de phases
   const phaseZones = useMemo(() => {
-    if (angles.length === 0) return []
-    
-    const zones: Array<{ phase: ThrowPhase; startX: number; width: number }> = []
-    let currentPhase = angles[0].phase
-    let startIndex = 0
-    
+    if (angles.length === 0) return [];
+    const zones: Array<{ phase: ThrowPhase; startX: number; width: number }> =
+      [];
+    let currentPhase = angles[0].phase;
+    let startIndex = 0;
+
     for (let i = 1; i <= angles.length; i++) {
       if (i === angles.length || angles[i].phase !== currentPhase) {
-        const endIndex = i
-        const startX = padding.left + (startIndex / (angles.length - 1)) * chartWidth
-        const endX = padding.left + ((endIndex - 1) / (angles.length - 1)) * chartWidth
-        
+        const endIndex = i;
+        const startX =
+          padding.left + (startIndex / (angles.length - 1)) * chartWidth;
+        const endX =
+          padding.left + ((endIndex - 1) / (angles.length - 1)) * chartWidth;
         zones.push({
           phase: currentPhase,
           startX,
-          width: endX - startX
-        })
-        
+          width: endX - startX,
+        });
         if (i < angles.length) {
-          currentPhase = angles[i].phase
-          startIndex = i
+          currentPhase = angles[i].phase;
+          startIndex = i;
         }
       }
     }
-    
-    return zones
-  }, [angles, chartWidth, padding])
-  
-  // Valeurs de l'axe Y
-  const yAxisTicks = [minAngle, (minAngle + maxAngle) / 2, maxAngle]
-  
-  return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <h4 className="text-sm font-medium">{title}</h4>
-        <span className="text-xs text-muted-foreground">{angles.length} mesures</span>
+    return zones;
+  }, [angles, chartWidth, padding]);
+
+  if (!angles || angles.length === 0) {
+    return (
+      <div className="space-y-2">
+        <h4 className="text-sm font-medium text-cyan-400 font-mono uppercase tracking-wider">
+          {title}
+        </h4>
+        <div className="border border-white/10 rounded bg-black/60 p-8 text-center text-muted-foreground font-mono text-xs">
+          NO DATA SIGNAL
+        </div>
       </div>
-      
-      <svg width={width} height={height} className="border rounded bg-background" viewBox={`0 0 ${width} ${height}`}>
-        {/* Zones de phases en arrière-plan */}
-        {phaseZones.map((zone, index) => (
-          <rect
-            key={index}
-            x={zone.startX}
-            y={padding.top}
-            width={zone.width}
-            height={chartHeight}
-            fill={phaseColors[zone.phase]}
-            opacity={0.1}
-          />
-        ))}
-        
-        {/* Grille horizontale */}
-        {yAxisTicks.map((tick, index) => {
-          const y = padding.top + chartHeight - ((tick - minAngle) / angleRange) * chartHeight
-          return (
-            <g key={index}>
-              <line
-                x1={padding.left}
-                y1={y}
-                x2={padding.left + chartWidth}
-                y2={y}
-                stroke="#94a3b8"
-                strokeWidth={1}
-                strokeDasharray="2,2"
-                opacity={0.3}
-              />
-              <text
-                x={padding.left - 5}
-                y={y + 4}
-                textAnchor="end"
-                fontSize={10}
-                fill="#94a3b8"
-              >
-                {tick.toFixed(0)}°
-              </text>
-            </g>
-          )
-        })}
-        
-        {/* Ligne du graphique */}
-        <polyline
-          points={points}
-          fill="none"
-          stroke={color}
-          strokeWidth={2}
-          strokeLinejoin="round"
-        />
-        
-        {/* Points individuels */}
-        {angles.map((angle, index) => {
-          const x = padding.left + (index / (angles.length - 1)) * chartWidth
-          const y = padding.top + chartHeight - ((angle.angle - minAngle) / angleRange) * chartHeight
-          
-          return (
-            <circle
-              key={index}
-              cx={x}
-              cy={y}
-              r={2}
-              fill={color}
-              opacity={angle.confidence}
-            />
-          )
-        })}
-        
-        {/* Axe X */}
-        <line
-          x1={padding.left}
-          y1={padding.top + chartHeight}
-          x2={padding.left + chartWidth}
-          y2={padding.top + chartHeight}
-          stroke="#94a3b8"
-          strokeWidth={1}
-        />
-        
-        {/* Label axe X */}
-        <text
-          x={padding.left + chartWidth / 2}
-          y={height - 5}
-          textAnchor="middle"
-          fontSize={10}
-          fill="#94a3b8"
+    );
+  }
+
+  const yAxisTicks = [minAngle, (minAngle + maxAngle) / 2, maxAngle];
+
+  return (
+    <div className="space-y-2 group">
+      <div className="flex items-center justify-between">
+        <h4 className="text-sm font-bold text-cyan-400 font-mono uppercase tracking-wider flex items-center gap-2">
+          <span className="w-2 h-2 bg-cyan-500 rounded-full animate-pulse" />
+          {title}
+        </h4>
+        <span className="text-[10px] font-mono text-cyan-500/70">
+          {angles.length} SAMPLES // {minAngle.toFixed(0)}° -{" "}
+          {maxAngle.toFixed(0)}°
+        </span>
+      </div>
+
+      <div className="relative">
+        {/* Effet de scanline CSS */}
+        <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] z-20 pointer-events-none bg-[length:100%_2px,3px_100%] opacity-20" />
+
+        <svg
+          width={width}
+          height={height}
+          className="border border-white/10 rounded-lg bg-black/80 shadow-[0_0_15px_rgba(0,0,0,0.5)]"
+          viewBox={`0 0 ${width} ${height}`}
         >
-          Temps →
-        </text>
-        
-        {/* Axe Y */}
-        <line
-          x1={padding.left}
-          y1={padding.top}
-          x2={padding.left}
-          y2={padding.top + chartHeight}
-          stroke="#94a3b8"
-          strokeWidth={1}
-        />
-      </svg>
-      
-      {/* Légende des phases */}
-      <div className="flex flex-wrap gap-2 text-xs">
-        {Object.entries(phaseColors).map(([phase, color]) => (
-          <div key={phase} className="flex items-center gap-1">
-            <div 
-              className="w-3 h-3 rounded" 
-              style={{ backgroundColor: color, opacity: 0.5 }}
+          <defs>
+            <linearGradient
+              id={`gradient-${chartId}`}
+              x1="0"
+              y1="0"
+              x2="0"
+              y2="1"
+            >
+              <stop offset="0%" stopColor={color} stopOpacity={0.4} />
+              <stop offset="100%" stopColor={color} stopOpacity={0} />
+            </linearGradient>
+
+            {/* Glow Filter Pro */}
+            <filter
+              id={`glow-${chartId}`}
+              x="-50%"
+              y="-50%"
+              width="200%"
+              height="200%"
+            >
+              <feGaussianBlur stdDeviation="2.5" result="coloredBlur" />
+              <feMerge>
+                <feMergeNode in="coloredBlur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+
+            {/* Pattern Grille */}
+            <pattern
+              id={`grid-${chartId}`}
+              width="20"
+              height="20"
+              patternUnits="userSpaceOnUse"
+            >
+              <path
+                d="M 20 0 L 0 0 0 20"
+                fill="none"
+                stroke="rgba(255,255,255,0.05)"
+                strokeWidth="0.5"
+              />
+            </pattern>
+          </defs>
+
+          {/* Fond Grille Technique */}
+          <rect
+            x={padding.left}
+            y={padding.top}
+            width={chartWidth}
+            height={chartHeight}
+            fill={`url(#grid-${chartId})`}
+          />
+
+          {/* Zones de phases (Subtiles) */}
+          {phaseZones.map((zone, index) => (
+            <rect
+              key={index}
+              x={zone.startX}
+              y={padding.top}
+              width={zone.width}
+              height={chartHeight}
+              fill={phaseColors[zone.phase]}
+              opacity={0.05}
             />
-            <span className="text-muted-foreground capitalize">
-              {phase.replace('_', ' ')}
+          ))}
+
+          {/* Grille Horizontale Principale */}
+          {yAxisTicks.map((tick, index) => {
+            const y =
+              padding.top +
+              chartHeight -
+              ((tick - minAngle) / angleRange) * chartHeight;
+            return (
+              <g key={index}>
+                <line
+                  x1={padding.left}
+                  y1={y}
+                  x2={padding.left + chartWidth}
+                  y2={y}
+                  stroke={color}
+                  strokeWidth={0.5}
+                  strokeDasharray="2,2"
+                  opacity={0.3}
+                />
+                <text
+                  x={padding.left - 8}
+                  y={y + 3}
+                  textAnchor="end"
+                  fontSize={9}
+                  fontFamily="monospace"
+                  fill={color}
+                  opacity={0.7}
+                >
+                  {tick.toFixed(0)}°
+                </text>
+              </g>
+            );
+          })}
+
+          {/* Zone remplie */}
+          <path d={areaPath} fill={`url(#gradient-${chartId})`} opacity={0.6} />
+
+          {/* Ligne du graphique (Glow) */}
+          <polyline
+            points={points}
+            fill="none"
+            stroke={color}
+            strokeWidth={2}
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            filter={`url(#glow-${chartId})`}
+          />
+
+          {/* Curseur de fin (Point actuel) */}
+          {angles.length > 0 && (
+            <g>
+              <circle
+                cx={
+                  padding.left +
+                  ((angles.length - 1) / (angles.length - 1)) * chartWidth
+                }
+                cy={
+                  padding.top +
+                  chartHeight -
+                  ((angles[angles.length - 1].angle - minAngle) / angleRange) *
+                    chartHeight
+                }
+                r={3}
+                fill="#fff"
+                filter={`url(#glow-${chartId})`}
+              />
+              <circle
+                cx={
+                  padding.left +
+                  ((angles.length - 1) / (angles.length - 1)) * chartWidth
+                }
+                cy={
+                  padding.top +
+                  chartHeight -
+                  ((angles[angles.length - 1].angle - minAngle) / angleRange) *
+                    chartHeight
+                }
+                r={6}
+                fill="none"
+                stroke={color}
+                strokeWidth={1}
+                opacity={0.5}
+              >
+                <animate
+                  attributeName="r"
+                  from="3"
+                  to="8"
+                  dur="1.5s"
+                  repeatCount="indefinite"
+                />
+                <animate
+                  attributeName="opacity"
+                  from="0.8"
+                  to="0"
+                  dur="1.5s"
+                  repeatCount="indefinite"
+                />
+              </circle>
+            </g>
+          )}
+
+          {/* Axe X */}
+          <line
+            x1={padding.left}
+            y1={padding.top + chartHeight}
+            x2={padding.left + chartWidth}
+            y2={padding.top + chartHeight}
+            stroke={color}
+            strokeWidth={1}
+            opacity={0.5}
+          />
+
+          {/* Axe Y */}
+          <line
+            x1={padding.left}
+            y1={padding.top}
+            x2={padding.left}
+            y2={padding.top + chartHeight}
+            stroke={color}
+            strokeWidth={1}
+            opacity={0.5}
+          />
+        </svg>
+      </div>
+
+      {/* Légende des phases (Style Tech) */}
+      <div className="flex flex-wrap gap-3 text-[10px] font-mono justify-center pt-1">
+        {Object.entries(phaseColors).map(([phase, pColor]) => (
+          <div
+            key={phase}
+            className="flex items-center gap-1.5 opacity-70 hover:opacity-100 transition-opacity"
+          >
+            <div
+              className="w-2 h-2 rounded-sm"
+              style={{
+                backgroundColor: pColor,
+                boxShadow: `0 0 5px ${pColor}`,
+              }}
+            />
+            <span className="text-gray-400 uppercase tracking-wider">
+              {phase.replace("_", " ")}
             </span>
           </div>
         ))}
       </div>
     </div>
-  )
+  );
 }
 
 /**
@@ -229,10 +356,10 @@ export function AngleChart({
  */
 interface AngleChartGridProps {
   charts: Array<{
-    angles: JointAngle[]
-    title: string
-    color?: string
-  }>
+    angles: JointAngle[];
+    title: string;
+    color?: string;
+  }>;
 }
 
 export function AngleChartGrid({ charts }: AngleChartGridProps) {
@@ -247,5 +374,5 @@ export function AngleChartGrid({ charts }: AngleChartGridProps) {
         />
       ))}
     </div>
-  )
+  );
 }
