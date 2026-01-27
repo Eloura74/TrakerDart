@@ -416,10 +416,10 @@ export function HistoryPage() {
                                     />
 
                                     {/* Détail des 3 lancers */}
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-3 mt-4">
                                       {volley.throws.map((throwData, throwIdx) => (
                                         <Card key={throwData.id} className="bg-white/5 border-white/10">
-                                          <CardContent className="p-3">
+                                          <CardContent className="p-2 sm:p-3">
                                             <div className="flex items-center justify-between mb-2">
                                               <span className="text-xs font-bold text-gray-300">LANCER {throwIdx + 1}</span>
                                               {throwIdx === volley.comparison.referenceThrowIndex && (

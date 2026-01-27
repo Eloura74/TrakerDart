@@ -298,7 +298,7 @@ export function ThrowReplay({ throws, referenceIndex }: ThrowReplayProps) {
           </div>
 
           {/* Options d'affichage */}
-          <div className="flex flex-wrap gap-4 justify-center pt-2 border-t border-white/5">
+          <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 sm:gap-4 sm:justify-center pt-3 sm:pt-2 border-t border-white/5">
             {throws.map((_, index) => (
               <div key={index} className="flex items-center gap-2">
                 <Switch
@@ -321,7 +321,7 @@ export function ThrowReplay({ throws, referenceIndex }: ThrowReplayProps) {
               </div>
             ))}
 
-            <div className="w-full h-[1px] bg-white/5 my-2" />
+            <div className="w-full h-[1px] bg-white/5 my-1" />
 
             <div className="flex items-center gap-2">
               <Switch
