@@ -47,21 +47,28 @@ export function ThrowComparison({ throws, referenceIndex }: ThrowComparisonProps
                   </span>
                 </div>
                 
-                {/* Vignette du mouvement (première pose) */}
-                <div className="relative aspect-video bg-muted rounded-lg mb-3 overflow-hidden flex items-center justify-center">
-                  {throwData.poses[0] ? (
-                    <svg className="w-full h-full p-4" viewBox="0 0 640 480" preserveAspectRatio="xMidYMid meet">
-                      {/* Dessin simple du squelette de la première pose */}
-                      {renderSimpleSkeleton(throwData.poses[0].keypoints)}
-                    </svg>
-                  ) : (
-                    <div className="text-muted-foreground text-xs">Aucune donnée</div>
-                  )}
-                  
-                  {/* Badge durée */}
-                  <div className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
-                    {((throwData.duration || 0) / 1000).toFixed(1)}s
+                {/* Indicateur visuel simplifié */}
+                <div className="relative aspect-video bg-gradient-to-br from-muted to-muted/50 rounded-lg mb-3 overflow-hidden flex items-center justify-center border-2 border-border">
+                  <div className="text-center">
+                    <div className="text-4xl font-bold text-primary mb-2">
+                      {index + 1}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {throwData.poses.length} frames
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {((throwData.duration || 0) / 1000).toFixed(1)}s
+                    </div>
                   </div>
+                  
+                  {/* Badge référence */}
+                  {isReference && (
+                    <div className="absolute top-2 left-2">
+                      <Badge variant="default" className="bg-success text-white">
+                        ⭐ Meilleur
+                      </Badge>
+                    </div>
+                  )}
                 </div>
                 
                 {/* Statistiques */}
@@ -106,79 +113,3 @@ export function ThrowComparison({ throws, referenceIndex }: ThrowComparisonProps
   )
 }
 
-/**
- * Dessine un squelette simplifié en SVG
- */
-function renderSimpleSkeleton(keypoints: Array<{ name?: string; x: number; y: number; score?: number }>) {
-  // Trouver les keypoints principaux
-  const rightShoulder = keypoints.find(kp => kp.name === 'right_shoulder')
-  const leftShoulder = keypoints.find(kp => kp.name === 'left_shoulder')
-  const rightElbow = keypoints.find(kp => kp.name === 'right_elbow')
-  const leftElbow = keypoints.find(kp => kp.name === 'left_elbow')
-  const rightWrist = keypoints.find(kp => kp.name === 'right_wrist')
-  const leftWrist = keypoints.find(kp => kp.name === 'left_wrist')
-  const nose = keypoints.find(kp => kp.name === 'nose')
-  
-  // Utiliser le bras le mieux détecté
-  const shoulder = (rightShoulder?.score || 0) > (leftShoulder?.score || 0) ? rightShoulder : leftShoulder
-  const elbow = (rightElbow?.score || 0) > (leftElbow?.score || 0) ? rightElbow : leftElbow
-  const wrist = (rightWrist?.score || 0) > (leftWrist?.score || 0) ? rightWrist : leftWrist
-  
-  if (!shoulder || !elbow || !wrist) {
-    return (
-      <text x="320" y="240" textAnchor="middle" fill="currentColor" fontSize="14">
-        Données incomplètes
-      </text>
-    )
-  }
-  
-  return (
-    <g>
-      {/* Tête */}
-      {nose && nose.score && nose.score > 0.3 && (
-        <>
-          <line 
-            x1={shoulder.x} y1={shoulder.y} 
-            x2={nose.x} y2={nose.y} 
-            stroke="hsl(var(--muted-foreground))" 
-            strokeWidth="3" 
-            opacity="0.5" 
-          />
-          <circle cx={nose.x} cy={nose.y} r="6" fill="hsl(var(--primary))" opacity="0.8" />
-        </>
-      )}
-      
-      {/* Bras - Épaule vers coude */}
-      <line 
-        x1={shoulder.x} y1={shoulder.y} 
-        x2={elbow.x} y2={elbow.y} 
-        stroke="hsl(var(--primary))" 
-        strokeWidth="4" 
-      />
-      
-      {/* Bras - Coude vers poignet */}
-      <line 
-        x1={elbow.x} y1={elbow.y} 
-        x2={wrist.x} y2={wrist.y} 
-        stroke="hsl(var(--primary))" 
-        strokeWidth="4" 
-      />
-      
-      {/* Points articulaires */}
-      <circle cx={shoulder.x} cy={shoulder.y} r="6" fill="hsl(var(--primary))" />
-      <circle cx={elbow.x} cy={elbow.y} r="8" fill="hsl(var(--chart-1))" />
-      <circle cx={wrist.x} cy={wrist.y} r="8" fill="hsl(var(--chart-2))" />
-      
-      {/* Labels */}
-      <text x={shoulder.x} y={shoulder.y - 15} textAnchor="middle" fill="currentColor" fontSize="10" opacity="0.7">
-        Épaule
-      </text>
-      <text x={elbow.x} y={elbow.y - 15} textAnchor="middle" fill="currentColor" fontSize="10" opacity="0.7">
-        Coude
-      </text>
-      <text x={wrist.x} y={wrist.y - 15} textAnchor="middle" fill="currentColor" fontSize="10" opacity="0.7">
-        Poignet
-      </text>
-    </g>
-  )
-}

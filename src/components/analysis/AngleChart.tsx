@@ -20,18 +20,30 @@ export function AngleChart({
   angles, 
   title,
   color = '#3b82f6',
-  height = 120
+  height = 200
 }: AngleChartProps) {
+  // Vérification des données
+  if (!angles || angles.length === 0) {
+    return (
+      <div className="space-y-2">
+        <h4 className="text-sm font-medium">{title}</h4>
+        <div className="border rounded bg-muted/10 p-8 text-center text-muted-foreground">
+          Aucune donnée disponible
+        </div>
+      </div>
+    )
+  }
+  
   // Calculer les dimensions du graphique
   const width = 600
-  const padding = { top: 20, right: 40, bottom: 30, left: 40 }
+  const padding = { top: 20, right: 40, bottom: 30, left: 50 }
   const chartWidth = width - padding.left - padding.right
   const chartHeight = height - padding.top - padding.bottom
   
   // Extraire les valeurs min/max pour l'échelle
   const angleValues = angles.map(a => a.angle)
-  const minAngle = Math.min(...angleValues, 0)
-  const maxAngle = Math.max(...angleValues, 180)
+  const minAngle = Math.max(Math.min(...angleValues) - 10, 0)
+  const maxAngle = Math.min(Math.max(...angleValues) + 10, 180)
   const angleRange = maxAngle - minAngle || 1
   
   // Convertir les angles en points SVG
@@ -89,9 +101,12 @@ export function AngleChart({
   
   return (
     <div className="space-y-2">
-      <h4 className="text-sm font-medium">{title}</h4>
+      <div className="flex items-center justify-between">
+        <h4 className="text-sm font-medium">{title}</h4>
+        <span className="text-xs text-muted-foreground">{angles.length} mesures</span>
+      </div>
       
-      <svg width={width} height={height} className="border rounded bg-muted/10">
+      <svg width={width} height={height} className="border rounded bg-background" viewBox={`0 0 ${width} ${height}`}>
         {/* Zones de phases en arrière-plan */}
         {phaseZones.map((zone, index) => (
           <rect

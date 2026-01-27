@@ -15,6 +15,7 @@ import { DataTable } from '@/components/analysis/DataTable'
 import { ThrowComparison } from '@/components/analysis/ThrowComparison'
 import { FeedbackCardPro } from '@/components/analysis/FeedbackCardPro'
 import { TrainingPlan } from '@/components/analysis/TrainingPlan'
+import { MotionOverlay } from '@/components/analysis/MotionOverlay'
 import { useAppStore } from '@/store/useAppStore'
 import { generateRecommendations } from '@/lib/feedback/generator'
 import { generateProfessionalRecommendations, getTopPriorities, generateTrainingPlan } from '@/lib/feedback/professionalRecommendations'
@@ -412,14 +413,20 @@ export function AnalysisPage({ volleyId }: AnalysisPageProps) {
         
         {/* Vue Graphiques */}
         {selectedView === 'charts' && (
-        <div className="space-y-6">
-          {/* Comparaison visuelle des 3 lancers */}
-          <ThrowComparison 
-            throws={volley.throws as [Throw, Throw, Throw]}
-            referenceIndex={volley.comparison.referenceThrowIndex}
-          />
-          
-          <Card>
+          <div className="space-y-6">
+            {/* Superposition des mouvements */}
+            <MotionOverlay
+              throws={volley.throws as [Throw, Throw, Throw]}
+              referenceIndex={volley.comparison.referenceThrowIndex}
+            />
+            
+            {/* Comparaison visuelle des 3 lancers */}
+            <ThrowComparison 
+              throws={volley.throws as [Throw, Throw, Throw]}
+              referenceIndex={volley.comparison.referenceThrowIndex}
+            />
+            
+            <Card>
             <CardHeader>
               <CardTitle>Évolution des angles au fil du temps</CardTitle>
               <CardDescription>

@@ -177,14 +177,14 @@ export function CameraCapture({
           // Effacer le canvas
           ctx.clearRect(0, 0, canvas.width, canvas.height)
           
-          // Dessiner le squelette
+          // Dessiner le squelette (propre et épuré)
           drawPose(canvas, pose, {
             drawKeypoints: true,
             drawSkeleton: true,
-            keypointColor: isRecording ? '#ff0000' : '#00ff00',
-            skeletonColor: isRecording ? '#ff0000' : '#00ff00',
-            lineWidth: 3,
-            keypointRadius: 5
+            keypointColor: isRecording ? '#ef4444' : '#22c55e',  // Rouge ou vert moderne
+            skeletonColor: isRecording ? '#ef4444' : '#22c55e',
+            lineWidth: 4,
+            keypointRadius: 6
           })
         }
       }

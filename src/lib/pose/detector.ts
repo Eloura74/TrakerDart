@@ -233,25 +233,24 @@ export function drawPose(
     }
   }
   
-  // Dessiner les keypoints
+  // Dessiner les keypoints (sans labels pour un rendu propre)
   if (drawKeypoints) {
     for (const kp of pose.keypoints) {
       if (kp.score < 0.3) continue
       
-      // Couleur basée sur la confiance (vert = bon, jaune = moyen, rouge = faible)
-      const hue = kp.score * 120 // 120 = vert, 0 = rouge
-      ctx.fillStyle = `hsl(${hue}, 100%, 50%)`
+      // Points colorés selon l'importance
+      const isMainJoint = kp.name?.includes('shoulder') || kp.name?.includes('elbow') || kp.name?.includes('wrist')
+      const radius = isMainJoint ? keypointRadius * 1.5 : keypointRadius
+      
+      // Couleur basée sur la confiance (vert clair)
+      ctx.fillStyle = keypointColor
+      ctx.strokeStyle = '#ffffff'
+      ctx.lineWidth = 1
       
       ctx.beginPath()
-      ctx.arc(kp.x, kp.y, keypointRadius, 0, 2 * Math.PI)
+      ctx.arc(kp.x, kp.y, radius, 0, 2 * Math.PI)
       ctx.fill()
-      
-      // Optionnel: afficher le nom du keypoint
-      if (kp.name) {
-        ctx.fillStyle = '#ffffff'
-        ctx.font = '10px Arial'
-        ctx.fillText(kp.name, kp.x + 5, kp.y - 5)
-      }
+      ctx.stroke()
     }
   }
 }
