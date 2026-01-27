@@ -1,0 +1,183 @@
+/**
+ * Page d'accueil de l'application
+ * Point d'entrée principal avec navigation vers les fonctionnalités
+ */
+
+import { Target, History, Settings, PlayCircle } from 'lucide-react'
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { useAppStore } from '@/store/useAppStore'
+
+export function HomePage() {
+  const { currentSession, startSession, sessions } = useAppStore()
+  
+  const handleStartSession = () => {
+    startSession()
+    // Navigation directe vers la capture
+    // L'utilisateur peut aller en calibration s'il le souhaite
+    window.location.hash = '#/capture'
+  }
+  
+  const stats = {
+    totalSessions: sessions.length,
+    totalThrows: sessions.reduce((sum, s) => sum + s.stats.totalThrows, 0),
+    averageConsistency: sessions.length > 0
+      ? sessions.reduce((sum, s) => sum + s.stats.averageConsistency, 0) / sessions.length
+      : 0
+  }
+  
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="border-b">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex items-center gap-3">
+            <Target className="h-8 w-8 text-primary" />
+            <div>
+              <h1 className="text-2xl font-bold">TrakerDart</h1>
+              <p className="text-sm text-muted-foreground">
+                Analyse biomécanique de lancer
+              </p>
+            </div>
+          </div>
+        </div>
+      </header>
+      
+      {/* Contenu principal */}
+      <main className="container mx-auto px-4 py-8">
+        {/* Action principale */}
+        <Card className="mb-8 bg-gradient-to-br from-primary/20 to-primary/5 border-primary/20">
+          <CardContent className="pt-6 pb-6">
+            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="flex-1 text-center md:text-left">
+                <h2 className="text-3xl font-bold mb-2">
+                  {currentSession ? 'Session en cours' : 'Nouvelle session'}
+                </h2>
+                <p className="text-muted-foreground">
+                  {currentSession
+                    ? `${currentSession.volleys.length} volée(s) enregistrée(s)`
+                    : 'Commencez une nouvelle session d\'entraînement'}
+                </p>
+              </div>
+              <Button
+                onClick={handleStartSession}
+                size="lg"
+                className="w-full md:w-auto"
+              >
+                <PlayCircle className="mr-2 h-5 w-5" />
+                {currentSession ? 'Continuer' : 'Démarrer'}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+        
+        {/* Statistiques rapides */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <Card>
+            <CardHeader>
+              <CardDescription>Sessions totales</CardDescription>
+              <CardTitle className="text-4xl">{stats.totalSessions}</CardTitle>
+            </CardHeader>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardDescription>Lancers effectués</CardDescription>
+              <CardTitle className="text-4xl">{stats.totalThrows}</CardTitle>
+            </CardHeader>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardDescription>Régularité moyenne</CardDescription>
+              <CardTitle className="text-4xl">
+                {stats.averageConsistency.toFixed(0)}%
+              </CardTitle>
+            </CardHeader>
+          </Card>
+        </div>
+        
+        {/* Navigation rapide */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card 
+            className="cursor-pointer hover:border-primary transition-colors"
+            onClick={() => { window.location.hash = '#/history' }}
+          >
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <History className="h-5 w-5" />
+                Historique
+              </CardTitle>
+              <CardDescription>
+                Consultez vos sessions et suivez votre progression
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="ghost" className="w-full">
+                Voir l'historique
+              </Button>
+            </CardContent>
+          </Card>
+          
+          <Card 
+            className="cursor-pointer hover:border-primary transition-colors"
+            onClick={() => { window.location.hash = '#/calibration' }}
+          >
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="h-5 w-5" />
+                Calibration
+              </CardTitle>
+              <CardDescription>
+                Guide de positionnement et vérification caméra
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button variant="ghost" className="w-full">
+                📍 Calibrer
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+        
+        {/* Guide rapide pour les nouveaux utilisateurs */}
+        {sessions.length === 0 && (
+          <Card className="mt-8 border-dashed">
+            <CardHeader>
+              <CardTitle>Bienvenue ! 👋</CardTitle>
+              <CardDescription>
+                Quelques étapes pour commencer :
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ol className="list-decimal list-inside space-y-2 text-sm">
+                <li>
+                  <strong>Positionnez votre appareil</strong> - Placez la caméra 
+                  de façon à vous voir de profil lors du lancer
+                </li>
+                <li>
+                  <strong>Calibrez votre position</strong> - Effectuez un lancer 
+                  test pour vérifier le cadrage
+                </li>
+                <li>
+                  <strong>Lancez une volée</strong> - Effectuez 3 lancers consécutifs
+                </li>
+                <li>
+                  <strong>Analysez vos résultats</strong> - Consultez le feedback 
+                  biomécanique détaillé
+                </li>
+              </ol>
+            </CardContent>
+          </Card>
+        )}
+      </main>
+      
+      {/* Footer */}
+      <footer className="border-t mt-12">
+        <div className="container mx-auto px-4 py-6 text-center text-sm text-muted-foreground">
+          <p>TrakerDart v0.1.0 - Analyse biomécanique de fléchettes</p>
+        </div>
+      </footer>
+    </div>
+  )
+}
