@@ -74,8 +74,11 @@ export function HomePage() {
       id: "chart-evolution",
       type: "chart",
       title: "Évolution de la Précision",
-      position: { x: 0, y: 2, w: 8, h: 6 },
-      config: { chartType: "line" },
+      position: { x: 0, y: 2, w: 8, h: 4 },
+      config: {
+        chartType: "line",
+        backgroundImage: "/images/calibration_bg.png",
+      },
       data: {
         labels: [],
         datasets: [],
@@ -85,8 +88,11 @@ export function HomePage() {
       id: "calendar-heatmap",
       type: "calendar",
       title: "Activité Récente",
-      position: { x: 8, y: 2, w: 4, h: 6 },
-      config: { days: 60 },
+      position: { x: 8, y: 2, w: 4, h: 4 },
+      config: {
+        days: 60,
+        backgroundImage: "/images/history_bg.png",
+      },
       data: [],
     },
   ]);
