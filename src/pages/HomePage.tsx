@@ -88,24 +88,55 @@ export function HomePage() {
 
         {/* Statistiques rapides */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <Card>
+          <Card
+            className="relative overflow-hidden group border-white/10"
+            style={{
+              backgroundImage: `linear-gradient(to bottom right, rgba(0,0,0,0.8), rgba(0,0,0,0.4)), url('/images/stats_sessions_bg.png')`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+          >
             <CardHeader>
-              <CardDescription>Sessions totales</CardDescription>
-              <CardTitle className="text-4xl">{stats.totalSessions}</CardTitle>
+              <CardDescription className="text-gray-400">
+                Sessions totales
+              </CardDescription>
+              <CardTitle className="text-4xl text-white">
+                {stats.totalSessions}
+              </CardTitle>
             </CardHeader>
           </Card>
 
-          <Card>
+          <Card
+            className="relative overflow-hidden group border-white/10"
+            style={{
+              backgroundImage: `linear-gradient(to bottom right, rgba(0,0,0,0.8), rgba(0,0,0,0.4)), url('/images/stats_throws_bg.png')`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+          >
             <CardHeader>
-              <CardDescription>Lancers effectués</CardDescription>
-              <CardTitle className="text-4xl">{stats.totalThrows}</CardTitle>
+              <CardDescription className="text-gray-400">
+                Lancers effectués
+              </CardDescription>
+              <CardTitle className="text-4xl text-white">
+                {stats.totalThrows}
+              </CardTitle>
             </CardHeader>
           </Card>
 
-          <Card>
+          <Card
+            className="relative overflow-hidden group border-white/10"
+            style={{
+              backgroundImage: `linear-gradient(to bottom right, rgba(0,0,0,0.8), rgba(0,0,0,0.4)), url('/images/stats_consistency_bg.png')`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
+          >
             <CardHeader>
-              <CardDescription>Régularité moyenne</CardDescription>
-              <CardTitle className="text-4xl">
+              <CardDescription className="text-gray-400">
+                Régularité moyenne
+              </CardDescription>
+              <CardTitle className="text-4xl text-white">
                 {stats.averageConsistency.toFixed(0)}%
               </CardTitle>
             </CardHeader>
@@ -115,44 +146,60 @@ export function HomePage() {
         {/* Navigation rapide */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card
-            className="cursor-pointer hover:border-primary transition-colors"
+            className="cursor-pointer hover:border-primary transition-all hover:shadow-[0_0_20px_rgba(6,182,212,0.3)] relative overflow-hidden group border-white/10"
             onClick={() => {
               window.location.hash = "#/history";
             }}
+            style={{
+              backgroundImage: `linear-gradient(to bottom right, rgba(0,0,0,0.8), rgba(0,0,0,0.4)), url('/images/history_bg.png')`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
           >
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <History className="h-5 w-5" />
+              <CardTitle className="flex items-center gap-2 text-white">
+                <History className="h-5 w-5 text-cyan-400" />
                 Historique
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-gray-400">
                 Consultez vos sessions et suivez votre progression
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button variant="ghost" className="w-full">
+              <Button
+                variant="ghost"
+                className="w-full border border-white/10 bg-black/40 hover:bg-cyan-500/20 text-cyan-400"
+              >
                 Voir l'historique
               </Button>
             </CardContent>
           </Card>
 
           <Card
-            className="cursor-pointer hover:border-primary transition-colors"
+            className="cursor-pointer hover:border-primary transition-all hover:shadow-[0_0_20px_rgba(6,182,212,0.3)] relative overflow-hidden group border-white/10"
             onClick={() => {
               window.location.hash = "#/calibration";
             }}
+            style={{
+              backgroundImage: `linear-gradient(to bottom right, rgba(0,0,0,0.8), rgba(0,0,0,0.4)), url('/images/calibration_bg.png')`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+            }}
           >
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Settings className="h-5 w-5" />
+              <CardTitle className="flex items-center gap-2 text-white">
+                <Settings className="h-5 w-5 text-cyan-400" />
                 Calibration
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-gray-400">
                 Guide de positionnement et vérification caméra
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button variant="ghost" className="w-full">
+              <Button
+                variant="ghost"
+                className="w-full border border-white/10 bg-black/40 hover:bg-cyan-500/20 text-cyan-400"
+              >
                 📍 Calibrer
               </Button>
             </CardContent>
