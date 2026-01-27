@@ -89,44 +89,58 @@ export const useAppStore = create<AppState & AppActions>()(
         if (!session?.user) return;
 
         try {
-          // 1. Charger la calibration
-          const { data: calibrationData } = await supabase
-            .from("calibrations")
-            .select("config")
-            .eq("user_id", session.user.id)
-            .order("created_at", { ascending: false })
-            .limit(1)
-            .single();
+          // 1. Charger la calibration (optionnel - table peut ne pas exister)
+          try {
+            const { data: calibrationData, error: calibrationError } = await supabase
+              .from("calibrations")
+              .select("config")
+              .eq("user_id", session.user.id)
+              .order("created_at", { ascending: false })
+              .limit(1)
+              .maybeSingle();
 
-          if (calibrationData?.config) {
-            set({ calibration: calibrationData.config });
+            if (calibrationError) {
+              console.warn("Table calibrations non disponible:", calibrationError.message);
+            } else if (calibrationData?.config) {
+              set({ calibration: calibrationData.config });
+            }
+          } catch (calibrationError) {
+            // Table n'existe pas ou pas accessible, continuer sans calibration
+            console.warn("Calibration non chargée:", calibrationError);
           }
 
-          // 2. Charger les sessions
-          const { data: sessionsData } = await supabase
-            .from("sessions")
-            .select("*")
-            .eq("user_id", session.user.id)
-            .order("created_at", { ascending: false });
+          // 2. Charger les sessions (optionnel - table peut ne pas exister)
+          try {
+            const { data: sessionsData, error: sessionsError } = await supabase
+              .from("sessions")
+              .select("*")
+              .eq("user_id", session.user.id)
+              .order("created_at", { ascending: false });
 
-          if (sessionsData) {
-            const sessions: TrainingSession[] = sessionsData.map((s) => ({
-              id: s.id, // Utiliser l'ID UUID de Supabase
-              volleys: s.volleys || [],
-              stats: s.stats || {
-                totalThrows: 0,
-                averageConsistency: 0,
-                averageTechnicalScore: 0,
-                consistencyTrend: "stable",
-              },
-              createdAt: new Date(s.created_at).getTime(),
-              endedAt: s.ended_at ? new Date(s.ended_at).getTime() : undefined,
-              duration: s.duration || 0,
-            }));
-            set({ sessions });
+            if (sessionsError) {
+              console.warn("Table sessions non disponible:", sessionsError.message);
+            } else if (sessionsData) {
+              const sessions: TrainingSession[] = sessionsData.map((s) => ({
+                id: s.id, // Utiliser l'ID UUID de Supabase
+                volleys: s.volleys || [],
+                stats: s.stats || {
+                  totalThrows: 0,
+                  averageConsistency: 0,
+                  averageTechnicalScore: 0,
+                  consistencyTrend: "stable",
+                },
+                createdAt: new Date(s.created_at).getTime(),
+                endedAt: s.ended_at ? new Date(s.ended_at).getTime() : undefined,
+                duration: s.duration || 0,
+              }));
+              set({ sessions });
+            }
+          } catch (sessionsError) {
+            // Table n'existe pas ou pas accessible, continuer avec sessions vides
+            console.warn("Sessions non chargées:", sessionsError);
           }
         } catch (error) {
-          console.error("Erreur lors du chargement des données:", error);
+          console.error("Erreur générale lors du chargement des données:", error);
         }
       },
 
