@@ -3,7 +3,6 @@ import { Play, Pause, RotateCcw, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import type { Throw, Keypoint } from "@/types";

@@ -196,8 +196,6 @@ export function drawPose(
   options: {
     drawKeypoints?: boolean;
     drawSkeleton?: boolean;
-    keypointColor?: string;
-    skeletonColor?: string;
     lineWidth?: number;
     keypointRadius?: number;
   } = {},
@@ -205,8 +203,6 @@ export function drawPose(
   const {
     drawKeypoints = true,
     drawSkeleton = true,
-    keypointColor = "#00ff00",
-    skeletonColor = "#00ff00",
     lineWidth = 2,
     keypointRadius = 4,
   } = options;
