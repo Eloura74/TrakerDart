@@ -70,7 +70,7 @@ export function HistoryPage() {
 
   if (selectedSession) {
     return (
-      <div className="min-h-screen bg-background pb-20">
+      <div className="min-h-screen bg-transparent pb-20">
         {/* Header */}
         <header className="border-b sticky top-0 bg-background z-10">
           <div className="container mx-auto px-4 py-4">
@@ -295,7 +295,7 @@ export function HistoryPage() {
             {sortedSessions.map((session) => (
               <Card
                 key={session.id}
-                className="cursor-pointer hover:border-primary transition-colors"
+                className="cursor-pointer hover:border-primary transition-colors glass-card"
                 onClick={() => viewSession(session)}
               >
                 <CardHeader>

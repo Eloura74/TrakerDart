@@ -35,7 +35,7 @@ export function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-transparent">
       {/* Header */}
       <header className="border-b">
         <div className="container mx-auto px-4 py-6">

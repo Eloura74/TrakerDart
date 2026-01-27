@@ -88,7 +88,7 @@ export function CalibrationPage() {
   const quality = checkQuality();
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-transparent pb-20">
       {/* Header */}
       <header className="border-b sticky top-0 bg-background z-10">
         <div className="container mx-auto px-4 py-4">
@@ -114,7 +114,7 @@ export function CalibrationPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Caméra */}
           <div className="space-y-4">
-            <Card>
+            <Card className="glass-card">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Camera className="w-5 h-5" />
@@ -167,7 +167,7 @@ export function CalibrationPage() {
           {/* Instructions */}
           <div className="space-y-4">
             {/* Main dominante */}
-            <Card>
+            <Card className="glass-card">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <User className="w-5 h-5" />
@@ -195,7 +195,7 @@ export function CalibrationPage() {
             </Card>
 
             {/* Guide de positionnement */}
-            <Card>
+            <Card className="glass-card">
               <CardHeader>
                 <CardTitle>Guide de positionnement optimal</CardTitle>
               </CardHeader>
@@ -257,7 +257,7 @@ export function CalibrationPage() {
             </Card>
 
             {/* Points détectés requis */}
-            <Card>
+            <Card className="glass-card">
               <CardHeader>
                 <CardTitle>Points clés à détecter</CardTitle>
               </CardHeader>

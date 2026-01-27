@@ -229,7 +229,7 @@ export function CapturePageAuto() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-20">
+    <div className="min-h-screen bg-transparent pb-20">
       {/* Header */}
       <header className="border-b sticky top-0 bg-background z-10">
         <div className="container mx-auto px-4 py-4">
@@ -264,7 +264,7 @@ export function CapturePageAuto() {
         />
 
         {/* État actuel */}
-        <Card className={`${getStatusColor()} transition-colors`}>
+        <Card className={`${getStatusColor()} transition-colors glass-card`}>
           <CardContent className="p-6 text-center">
             <p className="text-lg font-medium">{getStatusMessage()}</p>
             {isReady && !isCompleted && !isAnalyzing && (
@@ -283,7 +283,7 @@ export function CapturePageAuto() {
 
         {/* Lancers complétés */}
         {throws.length > 0 && (
-          <Card>
+          <Card className="glass-card">
             <CardHeader>
               <CardTitle>Lancers enregistrés</CardTitle>
             </CardHeader>
@@ -330,7 +330,7 @@ export function CapturePageAuto() {
 
         {/* Instructions */}
         {!isReady && !isCompleted && (
-          <Card>
+          <Card className="glass-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Zap className="w-5 h-5 text-warning" />
