@@ -13,8 +13,11 @@ import { FeedbackList } from '@/components/analysis/FeedbackCard'
 import { AngleChartGrid } from '@/components/analysis/AngleChart'
 import { DataTable } from '@/components/analysis/DataTable'
 import { ThrowComparison } from '@/components/analysis/ThrowComparison'
+import { FeedbackCardPro } from '@/components/analysis/FeedbackCardPro'
+import { TrainingPlan } from '@/components/analysis/TrainingPlan'
 import { useAppStore } from '@/store/useAppStore'
 import { generateRecommendations } from '@/lib/feedback/generator'
+import { generateProfessionalRecommendations, getTopPriorities, generateTrainingPlan } from '@/lib/feedback/professionalRecommendations'
 import { getComparisonSummary } from '@/lib/biomechanics/comparison'
 import type { Volley, Throw } from '@/types'
 
@@ -38,13 +41,46 @@ export function AnalysisPage({ volleyId }: AnalysisPageProps) {
     return currentSession.volleys[currentSession.volleys.length - 1] || null
   }, [currentSession, volleyId])
   
-  // Générer les recommandations
+  // Générer les recommandations (anciennes + nouvelles)
   const recommendations = useMemo(() => {
     if (!volley) return null
     
     const analyses = volley.throws.map(t => t.analysis)
     return generateRecommendations(analyses, volley.comparison)
   }, [volley])
+  
+  // Nouvelles recommandations professionnelles
+  const proRecommendations = useMemo(() => {
+    if (!volley) return []
+    
+    try {
+      const analyses = volley.throws.map(t => t.analysis)
+      return generateProfessionalRecommendations(analyses, volley.comparison)
+    } catch (error) {
+      console.error('Erreur génération recommandations:', error)
+      return []
+    }
+  }, [volley])
+  
+  // Top 3 priorités
+  const topPriorities = useMemo(() => {
+    try {
+      return getTopPriorities(proRecommendations)
+    } catch (error) {
+      console.error('Erreur génération top priorities:', error)
+      return []
+    }
+  }, [proRecommendations])
+  
+  // Plan d'entraînement
+  const trainingPlan = useMemo(() => {
+    try {
+      return generateTrainingPlan(proRecommendations)
+    } catch (error) {
+      console.error('Erreur génération plan:', error)
+      return { week1: [], week2: [], week3: [], week4: [] }
+    }
+  }, [proRecommendations])
   
   // Résumé textuel de la comparaison
   const comparisonSummary = useMemo(() => {
@@ -140,6 +176,43 @@ export function AnalysisPage({ volleyId }: AnalysisPageProps) {
         {/* Vue Résumé */}
         {selectedView === 'summary' && (
         <div className="space-y-6">
+          {/* TOP 3 Priorités */}
+          {topPriorities.length > 0 && (
+            <Card className="border-primary">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="h-5 w-5 text-primary" />
+                  🎯 TOP 3 - Priorités absolues
+                </CardTitle>
+                <CardDescription>
+                  Concentrez-vous sur ces 3 points en premier
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <FeedbackCardPro recommendations={topPriorities} />
+              </CardContent>
+            </Card>
+          )}
+          
+          {/* Recommandations complètes */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5" />
+                Analyse détaillée et recommandations
+              </CardTitle>
+              <CardDescription>
+                Basé sur l'analyse biomécanique de joueurs professionnels
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <FeedbackCardPro recommendations={proRecommendations} />
+            </CardContent>
+          </Card>
+          
+          {/* Plan d'entraînement */}
+          <TrainingPlan plan={trainingPlan} />
+          
           {/* Scores principaux */}
           <Card>
             <CardHeader>

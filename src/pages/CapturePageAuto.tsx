@@ -18,7 +18,7 @@ import { generateId } from '@/lib/utils'
 import type { Pose, Throw, Volley } from '@/types'
 
 export function CapturePageAuto() {
-  const { calibration, currentSession, addVolleyToSession, setAnalyzing } = useAppStore()
+  const { calibration, currentSession, addVolleyToSession, setAnalyzing, startSession } = useAppStore()
   
   const [isReady, setIsReady] = useState(false)
   const [currentThrowIndex, setCurrentThrowIndex] = useState(0)
@@ -72,7 +72,10 @@ export function CapturePageAuto() {
         }
       } catch (error) {
         console.error('❌ Erreur analyse:', error)
-        alert('Erreur lors de l\'analyse. Recommencez.')
+        console.error('Stack:', error instanceof Error ? error.stack : 'No stack')
+        alert('Erreur analyse: ' + (error instanceof Error ? error.message : String(error)))
+        setIsAnalyzingLocal(false)
+        setAnalyzing(false)
       } finally {
         setIsAnalyzingLocal(false)
         setAnalyzing(false)
@@ -100,11 +103,12 @@ export function CapturePageAuto() {
         createdAt: Date.now()
       }
       
+      // Créer une session automatiquement si elle n'existe pas
       if (!currentSession) {
-        console.error('❌ Erreur: Pas de session')
-        alert('Erreur: Aucune session active. Retour à l\'accueil.')
-        window.location.hash = '#/'
-        return
+        console.warn('⚠️ Pas de session, création automatique...')
+        startSession()
+        // Attendre que le store soit mis à jour
+        await new Promise(resolve => setTimeout(resolve, 100))
       }
       
       addVolleyToSession(volley)
