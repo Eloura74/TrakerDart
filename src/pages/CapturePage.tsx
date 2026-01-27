@@ -3,7 +3,7 @@
  * Style: HUD Militaire / Sci-Fi
  */
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef } from "react";
 import {
   ArrowLeft,
   RotateCcw,
@@ -20,7 +20,6 @@ import {
   CardContent,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -59,6 +58,12 @@ export function CapturePage() {
    * Démarre le compte à rebours avant l'enregistrement
    */
   const startCountdown = useCallback(() => {
+    // Vérifier que l'état est bien "idle" avant de démarrer
+    if (recordingState !== "idle") {
+      console.warn("Tentative de démarrage alors que l'état n'est pas idle:", recordingState);
+      return;
+    }
+
     setRecordingState("countdown");
     setCountdown(3);
 
@@ -76,12 +81,13 @@ export function CapturePage() {
             setElapsedTime((t) => t + 100);
           }, 100);
 
+          console.log(`🎯 Démarrage enregistrement lancer ${currentThrowIndex + 1}/3`);
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
-  }, []);
+  }, [recordingState, currentThrowIndex]);
 
   /**
    * Arrête l'enregistrement du lancer actuel
@@ -130,6 +136,7 @@ export function CapturePage() {
     } finally {
       setAnalyzing(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentThrowIndex, elapsedTime, calibration, setAnalyzing]);
 
   /**

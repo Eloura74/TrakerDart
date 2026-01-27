@@ -3,7 +3,7 @@
  * Gère l'initialisation et la détection continue
  */
 
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { initPoseDetector, detectPose, isDetectorReady } from '@/lib/pose/detector'
 import type { Pose } from '@/types'
 

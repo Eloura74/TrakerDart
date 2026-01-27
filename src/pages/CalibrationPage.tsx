@@ -19,7 +19,7 @@ import { useAppStore } from "@/store/useAppStore";
 import type { Pose } from "@/types";
 
 export function CalibrationPage() {
-  const { calibration, setCalibration } = useAppStore();
+  const { calibration } = useAppStore();
   const [currentPose, setCurrentPose] = useState<Pose | null>(null);
   const [dominantHand, setDominantHand] = useState<"left" | "right">(
     calibration?.dominantHand || "right",

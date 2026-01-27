@@ -3,7 +3,7 @@ import { Play, Pause, RotateCcw, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import type { Throw, Keypoint } from "@/types";
@@ -28,7 +28,15 @@ export function ThrowReplay({ throws, referenceIndex }: ThrowReplayProps) {
   const [showSkeleton, setShowSkeleton] = useState(true);
 
   // Calculer la durée max pour normaliser
-  const maxDuration = Math.max(...throws.map((t) => t.duration));
+  // Si la durée stockée est 0, on la calcule à partir des timestamps des poses
+  const maxDuration = Math.max(...throws.map((t) => {
+    if (t.duration > 0) return t.duration;
+    // Calculer depuis les poses
+    if (t.poses && t.poses.length > 1) {
+      return t.poses[t.poses.length - 1].timestamp - t.poses[0].timestamp;
+    }
+    return 1000; // Durée par défaut de 1 seconde pour éviter division par 0
+  }));
 
   // Animation loop
   useEffect(() => {
@@ -76,32 +84,50 @@ export function ThrowReplay({ throws, referenceIndex }: ThrowReplayProps) {
 
     // Trouver les dimensions pour l'échelle
     const allKeypoints = throws.flatMap((t) =>
-      t.poses.flatMap((p) => p.keypoints),
+      (t.poses || []).flatMap((p) => p.keypoints || []),
     );
+
+    if (allKeypoints.length === 0) return;
+
     const minX = Math.min(...allKeypoints.map((kp) => kp.x));
     const maxX = Math.max(...allKeypoints.map((kp) => kp.x));
     const minY = Math.min(...allKeypoints.map((kp) => kp.y));
     const maxY = Math.max(...allKeypoints.map((kp) => kp.y));
 
     const padding = 50;
-    const scaleX = canvas.width / (maxX - minX + padding * 2);
-    const scaleY = canvas.height / (maxY - minY + padding * 2);
+    // Eviter la division par zéro si minX == maxX
+    const width = Math.max(maxX - minX, 1);
+    const height = Math.max(maxY - minY, 1);
+
+    const scaleX = canvas.width / (width + padding * 2);
+    const scaleY = canvas.height / (height + padding * 2);
     const scale = Math.min(scaleX, scaleY);
 
-    const offsetX = (canvas.width - (maxX - minX) * scale) / 2 - minX * scale;
-    const offsetY = (canvas.height - (maxY - minY) * scale) / 2 - minY * scale;
+    const offsetX = (canvas.width - width * scale) / 2 - minX * scale;
+    const offsetY = (canvas.height - height * scale) / 2 - minY * scale;
 
     // Dessiner chaque lancer
     throws.forEach((throwData, index) => {
       if (!visibleThrows[index]) return;
 
+      // Calculer la durée réelle de ce lancer
+      const throwDuration = throwData.poses && throwData.poses.length > 1
+        ? throwData.poses[throwData.poses.length - 1].timestamp - throwData.poses[0].timestamp
+        : throwData.duration || 1000;
+
       // Trouver la pose correspondant au temps actuel
-      // On suppose que les poses sont réparties uniformément ou on utilise le timestamp
-      // Pour simplifier ici, on utilise l'index proportionnel au temps
-      const progress = currentTime / throwData.duration;
-      const poseIndex = Math.floor(progress * (throwData.poses.length - 1));
-      const pose =
-        throwData.poses[Math.min(poseIndex, throwData.poses.length - 1)];
+      // Utiliser les timestamps des poses pour une précision maximale
+      const targetTimestamp = throwData.poses[0]?.timestamp + (currentTime / maxDuration) * throwDuration;
+      
+      // Trouver la pose la plus proche du timestamp cible
+      let pose = throwData.poses[0];
+      for (let i = 0; i < throwData.poses.length; i++) {
+        if (throwData.poses[i].timestamp <= targetTimestamp) {
+          pose = throwData.poses[i];
+        } else {
+          break;
+        }
+      }
 
       if (pose && showSkeleton) {
         drawSkeleton(
@@ -115,7 +141,7 @@ export function ThrowReplay({ throws, referenceIndex }: ThrowReplayProps) {
         );
       }
     });
-  }, [currentTime, throws, visibleThrows, showSkeleton, referenceIndex]);
+  }, [currentTime, throws, visibleThrows, showSkeleton, referenceIndex, maxDuration]);
 
   const drawSkeleton = (
     ctx: CanvasRenderingContext2D,
@@ -295,6 +321,18 @@ export function ThrowReplay({ throws, referenceIndex }: ThrowReplayProps) {
                 </Label>
               </div>
             ))}
+
+            <div className="w-full h-[1px] bg-white/5 my-2" />
+
+            <div className="flex items-center gap-2">
+              <Switch
+                checked={showSkeleton}
+                onCheckedChange={setShowSkeleton}
+              />
+              <Label className="text-xs text-gray-300">
+                Afficher Squelette
+              </Label>
+            </div>
           </div>
         </div>
       </CardContent>

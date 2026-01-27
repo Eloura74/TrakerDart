@@ -13,19 +13,16 @@ import type {
   GazeAnalysis,
   JointAngle,
   Keypoint,
-  ThrowPhase
+  ThrowPhase,
+  PhaseSegment
 } from '@/types'
 
 import {
   calculateElbowAngle,
   calculateWristAngle,
-  calculateShoulderAngle,
-  calculateTrunkInclination,
   calculateHeadOrientation,
   calculateLateralDisplacement,
-  calculateVerticalDisplacement,
-  detectAngleSnap,
-  calculateDistance
+  detectAngleSnap
 } from './angles'
 
 import { detectThrowPhases, detectReleasePoint } from './phaseDetection'
@@ -47,8 +44,8 @@ export function analyzethrow(
   // 2. Analyses articulaires spécifiques
   const elbow = analyzeElbow(poses, phases, dominantHand)
   const wrist = analyzeWrist(poses, phases, dominantHand)
-  const shoulder = analyzeShoulder(poses, phases, dominantHand)
-  const trunk = analyzeTrunk(poses, phases)
+  const shoulder = analyzeShoulder(poses, dominantHand)
+  const trunk = analyzeTrunk(poses)
   const gaze = analyzeGaze(poses, phases)
   
   // 3. Calcul de la durée totale
@@ -83,7 +80,7 @@ export function analyzethrow(
  */
 function analyzeElbow(
   poses: Pose[],
-  phases: any[],
+  phases: PhaseSegment[],
   dominantHand: 'left' | 'right'
 ): ElbowAnalysis {
   const shoulderKey = dominantHand === 'right' ? 'right_shoulder' : 'left_shoulder'
@@ -152,7 +149,7 @@ function analyzeElbow(
  */
 function analyzeWrist(
   poses: Pose[],
-  phases: any[],
+  phases: PhaseSegment[],
   dominantHand: 'left' | 'right'
 ): WristAnalysis {
   const elbowKey = dominantHand === 'right' ? 'right_elbow' : 'left_elbow'
@@ -221,7 +218,6 @@ function analyzeWrist(
  */
 function analyzeShoulder(
   poses: Pose[],
-  phases: any[],
   dominantHand: 'left' | 'right'
 ): ShoulderAnalysis {
   const shoulderKey = dominantHand === 'right' ? 'right_shoulder' : 'left_shoulder'
@@ -264,7 +260,7 @@ function analyzeShoulder(
 /**
  * Analyse du tronc
  */
-function analyzeTrunk(poses: Pose[], phases: any[]): TrunkAnalysis {
+function analyzeTrunk(poses: Pose[]): TrunkAnalysis {
   const inclinations: number[] = []
   const centerPositions: { x: number; y: number }[] = []
   
@@ -326,7 +322,7 @@ function analyzeTrunk(poses: Pose[], phases: any[]): TrunkAnalysis {
 /**
  * Analyse de la ligne de visée
  */
-function analyzeGaze(poses: Pose[], phases: any[]): GazeAnalysis {
+function analyzeGaze(poses: Pose[], phases: PhaseSegment[]): GazeAnalysis {
   const headOrientations: number[] = []
   const preReleaseOrientations: number[] = []
   const windUpOrientations: number[] = []
@@ -391,7 +387,7 @@ function calculateAverageByPhase(angles: JointAngle[]): Record<ThrowPhase, numbe
 /**
  * Détermine la phase actuelle à un timestamp donné
  */
-function getCurrentPhase(timestamp: number, phases: any[]): ThrowPhase | null {
+function getCurrentPhase(timestamp: number, phases: PhaseSegment[]): ThrowPhase | null {
   for (const phase of phases) {
     if (timestamp >= phase.startTime && timestamp <= phase.endTime) {
       return phase.phase

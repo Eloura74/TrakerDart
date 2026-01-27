@@ -3,7 +3,7 @@
  * Affiche un score avec une barre de progression circulaire
  */
 
-import React from 'react'
+// Import React n'est pas nécessaire avec la nouvelle syntaxe JSX de React 17+
 import { cn } from '@/lib/utils'
 
 interface ScoreDisplayProps {
@@ -31,7 +31,7 @@ export function ScoreDisplay({
     lg: { outer: 140, inner: 120, stroke: 10 }
   }
   
-  const { outer, inner, stroke } = sizes[size]
+  const { outer, stroke } = sizes[size]
   const center = outer / 2
   const radius = (outer - stroke) / 2
   const circumference = 2 * Math.PI * radius

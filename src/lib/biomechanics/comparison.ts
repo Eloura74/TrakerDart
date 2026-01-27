@@ -8,7 +8,7 @@ import type {
   VolleyComparison,
   BiomechanicalAnalysis
 } from '@/types'
-import { coefficientOfVariation, average, standardDeviation } from '@/lib/utils'
+import { coefficientOfVariation, average } from '@/lib/utils'
 
 /**
  * Compare les 3 lancers d'une volée

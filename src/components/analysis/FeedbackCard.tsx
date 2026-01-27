@@ -3,7 +3,7 @@
  * Affiche une recommandation avec icône et couleur selon le type
  */
 
-import React from 'react'
+// Import React n'est pas nécessaire avec la nouvelle syntaxe JSX de React 17+
 import { AlertCircle, AlertTriangle, Info, CheckCircle } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
 import type { Feedback } from '@/types'

@@ -11,7 +11,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authService } from "@/services/auth";
-import { useAppStore } from "@/store/useAppStore";
 
 export function LoginPage() {
   const [email, setEmail] = useState("");
@@ -32,8 +31,9 @@ export function LoginPage() {
       // Redirection vers l'accueil après connexion réussie
       window.location.hash = "#/";
       window.location.reload(); // Pour recharger l'état de l'app
-    } catch (err: any) {
-      setError(err.message || "Une erreur est survenue lors de la connexion");
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Une erreur est survenue lors de la connexion";
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
