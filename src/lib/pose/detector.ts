@@ -47,35 +47,39 @@ export async function initPoseDetector(
       return detector
     }
     
-    console.log('🔧 Initialisation du backend TensorFlow...')
+    console.log('🔧 Initialisation TensorFlow...')
     
-    // Forcer l'utilisation du backend WebGL (plus compatible que WebGPU)
-    await tf.setBackend('webgl')
-    await tf.ready()
+    // Essayer WebGL, fallback sur CPU si échec (mobile)
+    try {
+      await tf.setBackend('webgl')
+      await tf.ready()
+      console.log('✅ Backend WebGL actif')
+    } catch (webglError) {
+      console.warn('⚠️ WebGL non disponible, utilisation du CPU')
+      await tf.setBackend('cpu')
+      await tf.ready()
+      console.log('✅ Backend CPU actif')
+    }
     
-    console.log('✅ Backend TensorFlow prêt:', tf.getBackend())
-    
-    // Configuration du modèle MoveNet
+    // Configuration optimisée mobile
     const model = poseDetection.SupportedModels.MoveNet
     const detectorConfig: poseDetection.MoveNetModelConfig = {
-      modelType: config.modelType === 'lightning' 
-        ? poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING
-        : poseDetection.movenet.modelType.SINGLEPOSE_THUNDER,
+      modelType: poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING,
       enableSmoothing: config.enableSmoothing,
       minPoseScore: config.minPoseScore
     }
     
-    console.log('📦 Chargement du modèle MoveNet...')
+    console.log('📦 Chargement MoveNet...')
     
     // Création du détecteur
     detector = await poseDetection.createDetector(model, detectorConfig)
     
-    console.log('✅ Détecteur de pose initialisé:', config.modelType)
+    console.log('✅ Détecteur prêt')
     
     return detector
   } catch (error) {
-    console.error('❌ Erreur initialisation détecteur:', error)
-    throw new Error('Impossible d\'initialiser le détecteur de pose')
+    console.error('❌ Erreur détecteur:', error)
+    throw new Error('Votre appareil ne supporte pas la détection de pose.')
   }
 }
 

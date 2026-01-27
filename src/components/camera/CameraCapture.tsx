@@ -4,7 +4,7 @@
  */
 
 import { useRef, useEffect, useState } from 'react'
-import { Camera, CameraOff, Loader2 } from 'lucide-react'
+import { Camera, CameraOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { useAppStore } from '@/store/useAppStore'
@@ -61,22 +61,25 @@ export function CameraCapture({
    * Démarre le flux caméra
    */
   const startCamera = async () => {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      setError('Caméra non supportée par ce navigateur. Essayez Chrome ou Firefox.')
+      return
+    }
+    
     try {
       setIsLoading(true)
       setError(null)
       
-      // Configuration caméra par défaut ou depuis le store
-      const constraints: MediaStreamConstraints = {
+      // Configuration optimisée mobile
+      const constraints = {
         video: {
           facingMode: cameraConfig?.facingMode || 'user',
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
-          frameRate: { ideal: 30 }
+          width: { ideal: 640, max: 1280 },
+          height: { ideal: 480, max: 720 }
         },
         audio: false
       }
       
-      // Demander l'accès à la caméra
       const stream = await navigator.mediaDevices.getUserMedia(constraints)
       streamRef.current = stream
       
@@ -245,46 +248,47 @@ export function CameraCapture({
                   Réessayer
                 </Button>
               </>
+            ) : isLoading ? (
+              <>
+                <div className="w-16 h-16 mb-4 animate-spin">⚙️</div>
+                <p className="text-muted-foreground">Chargement...</p>
+              </>
             ) : (
               <>
                 <Camera className="w-16 h-16 text-muted-foreground mb-4" />
                 <p className="text-muted-foreground mb-4">
                   Caméra désactivée
                 </p>
-                <Button
-                  onClick={startCamera}
-                  disabled={isLoading || !detectorReady}
-                  size="lg"
-                >
-                  {isLoading ? (
-                    <>
-                      <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                      Démarrage...
-                    </>
-                  ) : (
-                    <>
-                      <Camera className="mr-2 h-5 w-5" />
-                      Activer la caméra
-                    </>
-                  )}
+                <Button onClick={startCamera}>
+                  <Camera className="mr-2 h-4 w-4" />
+                  Activer la caméra
                 </Button>
               </>
             )}
           </div>
         )}
         
-        {/* Indicateur d'enregistrement */}
+        {/* Badge REC si enregistrement */}
         {isRecording && isActive && (
-          <div className="absolute top-4 left-4 flex items-center gap-2 bg-red-600 text-white px-3 py-2 rounded-full">
-            <div className="w-3 h-3 bg-white rounded-full animate-pulse" />
-            <span className="text-sm font-medium">REC</span>
+          <div className="absolute top-4 left-4 flex items-center gap-2 bg-gradient-to-r from-red-600 to-red-500 text-white px-4 py-2 rounded-full shadow-lg animate-pulse">
+            <div className="w-3 h-3 bg-white rounded-full" />
+            <span className="text-sm font-bold">ENREGISTREMENT</span>
           </div>
         )}
         
-        {/* Indicateur FPS (debug) */}
-        {isActive && fps > 0 && (
-          <div className="absolute top-4 right-4 bg-black/70 text-white px-3 py-2 rounded-lg text-sm">
-            <span className="font-mono">{fps} FPS</span>
+        {/* FPS - Amélioré */}
+        <div className="absolute top-4 right-4 bg-black/70 backdrop-blur-sm text-white px-4 py-2 rounded-full border border-white/10">
+          <span className="text-sm font-mono font-bold">{fps} FPS</span>
+        </div>
+        
+        {/* Grille de positionnement (si pas en enregistrement) */}
+        {!isRecording && (
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="w-full h-full grid grid-cols-3 grid-rows-3 opacity-20">
+              {Array.from({ length: 9 }).map((_, i) => (
+                <div key={i} className="border border-white/30" />
+              ))}
+            </div>
           </div>
         )}
       </Card>

@@ -12,10 +12,11 @@ import { ScoreDisplay, ScoreGrid } from '@/components/analysis/ScoreDisplay'
 import { FeedbackList } from '@/components/analysis/FeedbackCard'
 import { AngleChartGrid } from '@/components/analysis/AngleChart'
 import { DataTable } from '@/components/analysis/DataTable'
+import { ThrowComparison } from '@/components/analysis/ThrowComparison'
 import { useAppStore } from '@/store/useAppStore'
 import { generateRecommendations } from '@/lib/feedback/generator'
 import { getComparisonSummary } from '@/lib/biomechanics/comparison'
-import type { Volley } from '@/types'
+import type { Volley, Throw } from '@/types'
 
 interface AnalysisPageProps {
   volleyId?: string
@@ -27,29 +28,14 @@ export function AnalysisPage({ volleyId }: AnalysisPageProps) {
   
   // Trouver la volée à afficher
   const volley: Volley | null = useMemo(() => {
-    console.log('🔍 Recherche volée...', { 
-      hasSession: !!currentSession, 
-      volleyId,
-      nbVolleys: currentSession?.volleys.length || 0
-    })
-    
-    if (!currentSession) {
-      console.warn('⚠️ Pas de session')
-      return null
-    }
-    
-    console.log('📋 Volleys disponibles:', currentSession.volleys.map(v => v.id))
+    if (!currentSession) return null
     
     if (volleyId) {
-      const found = currentSession.volleys.find(v => v.id === volleyId)
-      console.log(found ? `✅ Volée trouvée: ${volleyId}` : `❌ Volée non trouvée: ${volleyId}`)
-      return found || null
+      return currentSession.volleys.find(v => v.id === volleyId) || null
     }
     
     // Si pas d'ID, prendre la dernière volée
-    const last = currentSession.volleys[currentSession.volleys.length - 1] || null
-    console.log(last ? `✅ Dernière volée: ${last.id}` : '❌ Aucune volée')
-    return last
+    return currentSession.volleys[currentSession.volleys.length - 1] || null
   }, [currentSession, volleyId])
   
   // Générer les recommandations
@@ -354,6 +340,12 @@ export function AnalysisPage({ volleyId }: AnalysisPageProps) {
         {/* Vue Graphiques */}
         {selectedView === 'charts' && (
         <div className="space-y-6">
+          {/* Comparaison visuelle des 3 lancers */}
+          <ThrowComparison 
+            throws={volley.throws as [Throw, Throw, Throw]}
+            referenceIndex={volley.comparison.referenceThrowIndex}
+          />
+          
           <Card>
             <CardHeader>
               <CardTitle>Évolution des angles au fil du temps</CardTitle>

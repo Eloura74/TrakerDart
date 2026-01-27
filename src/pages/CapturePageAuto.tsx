@@ -26,7 +26,6 @@ export function CapturePageAuto() {
   const [isAnalyzing, setIsAnalyzingLocal] = useState(false)
   const [isCompleted, setIsCompleted] = useState(false)
   const [motionState, setMotionState] = useState<string>('idle')
-  const [debugInfo, setDebugInfo] = useState<string>('')
   
   const motionDetectorRef = useRef(createMotionDetector(calibration?.dominantHand || 'right'))
   
@@ -43,7 +42,7 @@ export function CapturePageAuto() {
     
     // Si un lancer est complété
     if (result.state === 'completed' && result.poses) {
-      console.log(`✅ Lancer ${currentThrowIndex + 1} détecté ! (${result.poses.length} frames)`)
+      console.log(`✅ Lancer ${currentThrowIndex + 1}/${3} enregistré`)
       
       setIsAnalyzingLocal(true)
       setAnalyzing(true)
@@ -85,14 +84,14 @@ export function CapturePageAuto() {
    * Complète la volée et génère la comparaison
    */
   const completeVolley = useCallback(async (allThrows: [Throw, Throw, Throw]) => {
-    console.log('📊 Création de la volée...', { nbThrows: allThrows.length })
+    console.log('📊 Analyse de la volée...')
     
     setIsAnalyzingLocal(true)
     setAnalyzing(true)
     
     try {
       const comparison = compareThrows(allThrows)
-      console.log('✅ Comparaison effectuée, régularité:', comparison.consistencyIndex)
+      console.log(`✅ Régularité: ${comparison.consistencyIndex}%`)
       
       const volley: Volley = {
         id: generateId(),
@@ -101,24 +100,21 @@ export function CapturePageAuto() {
         createdAt: Date.now()
       }
       
-      console.log('📦 Volée créée, ID:', volley.id)
-      
       if (!currentSession) {
-        console.error('❌ Pas de session active !')
+        console.error('❌ Erreur: Pas de session')
         alert('Erreur: Aucune session active. Retour à l\'accueil.')
         window.location.hash = '#/'
         return
       }
       
-      console.log('💾 Ajout à la session...')
       addVolleyToSession(volley)
-      console.log('✅ Volée ajoutée à la session')
+      console.log('✅ Volée enregistrée')
       
       setIsCompleted(true)
       
       // Attendre que le store soit mis à jour avant de rediriger
       setTimeout(() => {
-        console.log('🔀 Redirection vers analyse:', volley.id)
+        console.log('🔀 Redirection analyse...')
         window.location.hash = `#/analysis/${volley.id}`
       }, 500)
     } catch (error) {

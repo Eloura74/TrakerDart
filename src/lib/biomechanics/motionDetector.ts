@@ -58,17 +58,15 @@ export class MotionDetector {
     // Calculer la vélocité du poignet
     const velocity = this.calculateWristVelocity(pose)
     
-    // Debug (toujours afficher)
-    if (velocity > 5) {  // Seulement si mouvement détectable
-      console.log(`Vélocité: ${velocity.toFixed(1)} | État: ${this.state}`)
-    }
+    // Debug désactivé en production
+    // if (velocity > 5) console.log(`Vélocité: ${velocity.toFixed(1)} | État: ${this.state}`)
     
     // Machine à états
     switch (this.state) {
       case 'idle':
         // Attendre un mouvement significatif
         if (velocity > this.config.velocityThreshold) {
-          console.log('🎯 Mouvement détecté ! Vélocité:', velocity.toFixed(1))
+          // console.log('🎯 Mouvement détecté !')
           this.state = 'preparing'
           this.throwStartTime = now
           this.posesBuffer = [pose]
@@ -81,7 +79,7 @@ export class MotionDetector {
         
         // Si le mouvement continue et s'accélère, c'est le lancer
         if (velocity > this.config.velocityThreshold * 1.5) {
-          console.log('🚀 Lancer en cours ! Vélocité:', velocity.toFixed(1))
+          // console.log('🚀 Lancer en cours !')
           this.state = 'throwing'
         }
         
@@ -114,7 +112,7 @@ export class MotionDetector {
             
             if (duration >= this.config.minThrowDuration) {
               // Lancer valide !
-              console.log(`✅ Lancer complet ! Durée: ${duration}ms, Frames: ${this.posesBuffer.length}`)
+              console.log(`✅ Lancer ${this.posesBuffer.length} frames en ${(duration/1000).toFixed(1)}s`)
               this.state = 'completed'
               const completedPoses = [...this.posesBuffer]
               this.reset()
@@ -125,7 +123,7 @@ export class MotionDetector {
               }
             } else {
               // Trop court, probablement un faux mouvement
-              console.log(`❌ Lancer trop court (${duration}ms), ignoré`)
+              // console.log('Mouvement trop court, ignoré')
               this.reset()
             }
           }
