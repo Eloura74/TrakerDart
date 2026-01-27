@@ -106,6 +106,17 @@ export function AnalysisPage({ volleyId }: AnalysisPageProps) {
     window.location.hash = "#/capture";
   };
 
+  const handleEndSession = async () => {
+    if (
+      confirm(
+        "Voulez-vous terminer cette session et l'enregistrer dans l'historique ?",
+      )
+    ) {
+      await useAppStore.getState().endSession();
+      window.location.hash = "#/history";
+    }
+  };
+
   if (!volley) {
     return (
       <div className="min-h-screen bg-transparent flex items-center justify-center">
@@ -155,14 +166,26 @@ export function AnalysisPage({ volleyId }: AnalysisPageProps) {
               </h1>
             </div>
 
-            <Button
-              onClick={startNewVolley}
-              size="sm"
-              className="bg-cyan-500 hover:bg-cyan-400 text-black font-bold shadow-[0_0_15px_rgba(6,182,212,0.5)] transition-all hover:shadow-[0_0_25px_rgba(6,182,212,0.6)]"
-            >
-              <Zap className="mr-2 h-4 w-4" />
-              NOUVELLE VOLÉE
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={handleEndSession}
+                variant="destructive"
+                size="sm"
+                className="font-bold"
+              >
+                <Trophy className="mr-2 h-4 w-4" />
+                TERMINER SESSION
+              </Button>
+
+              <Button
+                onClick={startNewVolley}
+                size="sm"
+                className="bg-cyan-500 hover:bg-cyan-400 text-black font-bold shadow-[0_0_15px_rgba(6,182,212,0.5)] transition-all hover:shadow-[0_0_25px_rgba(6,182,212,0.6)]"
+              >
+                <Zap className="mr-2 h-4 w-4" />
+                NOUVELLE VOLÉE
+              </Button>
+            </div>
           </div>
 
           {/* Onglets de navigation */}
