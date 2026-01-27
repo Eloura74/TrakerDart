@@ -18,26 +18,31 @@ export function HomePage() {
   const { currentSession, startSession, sessions } = useAppStore();
 
   const handleStartSession = () => {
-    startSession();
-    // Navigation directe vers la capture
-    // L'utilisateur peut aller en calibration s'il le souhaite
-    window.location.hash = "#/capture";
+    try {
+      startSession();
+      // Navigation directe vers la capture
+      // L'utilisateur peut aller en calibration s'il le souhaite
+      window.location.hash = "#/capture";
+    } catch (error) {
+      console.error("Erreur démarrage session:", error);
+    }
   };
 
+  // Statistiques avec gestion d'erreur
   const stats = {
-    totalSessions: sessions.length,
-    totalThrows: sessions.reduce((sum, s) => sum + s.stats.totalThrows, 0),
+    totalSessions: sessions?.length || 0,
+    totalThrows: sessions?.reduce((sum, s) => sum + (s.stats?.totalThrows || 0), 0) || 0,
     averageConsistency:
-      sessions.length > 0
-        ? sessions.reduce((sum, s) => sum + s.stats.averageConsistency, 0) /
+      sessions && sessions.length > 0
+        ? sessions.reduce((sum, s) => sum + (s.stats?.averageConsistency || 0), 0) /
           sessions.length
         : 0,
   };
 
   return (
-    <div className="min-h-screen bg-transparent">
+    <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black">
       {/* Header */}
-      <header className="border-b">
+      <header className="border-b border-white/10">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center gap-3">
             <Target className="h-8 w-8 text-primary" />

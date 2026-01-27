@@ -64,11 +64,23 @@ export default defineConfig({
     target: 'es2015',
     rollupOptions: {
       output: {
-        manualChunks: {
-          // Séparation des chunks pour optimiser le chargement
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'tensorflow': ['@tensorflow/tfjs-core', '@tensorflow/tfjs-backend-webgl', '@tensorflow-models/pose-detection'],
-          'ui': ['lucide-react', '@radix-ui/react-dialog', '@radix-ui/react-tabs']
+        manualChunks(id) {
+          // Séparation intelligente des chunks pour optimiser le chargement
+          // TensorFlow dans un chunk séparé car très volumineux
+          if (id.includes('node_modules/@tensorflow')) {
+            return 'tensorflow';
+          }
+          // React et toutes ses dépendances (y compris UI) ensemble
+          if (id.includes('node_modules/react') || 
+              id.includes('node_modules/react-dom') ||
+              id.includes('node_modules/@radix-ui') ||
+              id.includes('node_modules/lucide-react')) {
+            return 'react-vendor';
+          }
+          // Supabase dans un chunk séparé
+          if (id.includes('node_modules/@supabase')) {
+            return 'supabase';
+          }
         }
       }
     }
