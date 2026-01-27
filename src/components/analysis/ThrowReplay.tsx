@@ -231,9 +231,9 @@ export function ThrowReplay({ throws, referenceIndex }: ThrowReplayProps) {
           Replay Vidéo
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-4 sm:space-y-6">
         {/* Zone de visualisation */}
-        <div className="relative aspect-video bg-black/50 rounded-lg border border-white/5 overflow-hidden">
+        <div className="relative aspect-video bg-black/50 rounded-lg border border-white/5 overflow-hidden touch-none">
           <canvas
             ref={canvasRef}
             width={800}

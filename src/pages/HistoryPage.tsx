@@ -185,7 +185,7 @@ export function HistoryPage() {
                         </div>
 
                         {/* Statistiques de session */}
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4 mb-6">
                           <Card className="bg-gradient-to-br from-cyan-500/10 to-transparent border-cyan-500/20">
                             <CardContent className="p-4">
                               <div className="flex items-center gap-2 mb-2">
@@ -302,8 +302,62 @@ export function HistoryPage() {
                           </h4>
                           {session.volleys.map((volley, idx) => (
                             <Card key={volley.id} className="bg-black/40 border-white/10 overflow-hidden">
-                              <div className="p-4">
-                                <div className="flex items-center justify-between">
+                              <div className="p-3 sm:p-4">
+                                {/* Version mobile : layout vertical */}
+                                <div className="flex flex-col gap-3 sm:hidden">
+                                  <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                      <div className="w-8 h-8 rounded-full bg-cyan-500/20 flex items-center justify-center flex-shrink-0">
+                                        <span className="text-sm font-bold text-cyan-400">{idx + 1}</span>
+                                      </div>
+                                      <div>
+                                        <p className="font-bold text-white text-sm">Volée {idx + 1}</p>
+                                        <p className="text-[10px] text-gray-400">
+                                          {new Date(volley.createdAt).toLocaleTimeString()}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Scores en grille mobile */}
+                                  <div className="grid grid-cols-2 gap-2">
+                                    <div className="bg-cyan-500/10 rounded-lg p-2 text-center border border-cyan-500/20">
+                                      <div className="text-xl font-bold text-cyan-400">
+                                        {volley.comparison.consistencyIndex}
+                                      </div>
+                                      <div className="text-[9px] text-gray-400 uppercase">Régularité</div>
+                                    </div>
+                                    <div className="bg-purple-500/10 rounded-lg p-2 text-center border border-purple-500/20">
+                                      <div className="text-xl font-bold text-purple-400">
+                                        {Math.round(volley.throws.reduce((sum, t) => sum + t.analysis.technicalScore, 0) / 3)}
+                                      </div>
+                                      <div className="text-[9px] text-gray-400 uppercase">Technique</div>
+                                    </div>
+                                  </div>
+
+                                  {/* Boutons d'action mobile - en pleine largeur */}
+                                  <div className="grid grid-cols-2 gap-2">
+                                    <Button
+                                      size="sm"
+                                      onClick={() => toggleVolleyReplay(volley.id)}
+                                      className="w-full bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-400 border border-cyan-500/30"
+                                    >
+                                      <Play className="h-4 w-4 mr-2" />
+                                      Replay
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      onClick={() => viewVolleyAnalysis(volley.id)}
+                                      className="w-full bg-white/5 hover:bg-white/10 text-white border border-white/10"
+                                    >
+                                      <Eye className="h-4 w-4 mr-2" />
+                                      Analyse
+                                    </Button>
+                                  </div>
+                                </div>
+
+                                {/* Version desktop : layout horizontal */}
+                                <div className="hidden sm:flex items-center justify-between">
                                   <div className="flex items-center gap-4">
                                     <div className="w-10 h-10 rounded-full bg-cyan-500/20 flex items-center justify-center">
                                       <span className="text-lg font-bold text-cyan-400">{idx + 1}</span>
