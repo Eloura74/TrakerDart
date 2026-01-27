@@ -3,25 +3,22 @@
  * Affiche toutes les sessions passées et permet de les consulter
  */
 
-import { useState } from "react";
-import { ArrowLeft, Calendar, TrendingUp, Trash2, Eye } from "lucide-react";
+import { ArrowLeft, Calendar, Trash2, Eye } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAppStore } from "@/store/useAppStore";
-import { formatDate, formatDateShort } from "@/lib/utils";
-import type { TrainingSession } from "@/types";
+import { formatDateShort } from "@/lib/utils";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { BiomechanicsRadar } from "@/components/analysis/BiomechanicsRadar";
 
 export function HistoryPage() {
   const { sessions, deleteSession } = useAppStore();
-  const [selectedSession, setSelectedSession] =
-    useState<TrainingSession | null>(null);
 
   /**
    * Retour à l'accueil
@@ -31,28 +28,11 @@ export function HistoryPage() {
   };
 
   /**
-   * Voir le détail d'une session
-   */
-  const viewSession = (session: TrainingSession) => {
-    setSelectedSession(session);
-  };
-
-  /**
-   * Fermer le détail
-   */
-  const closeDetail = () => {
-    setSelectedSession(null);
-  };
-
-  /**
    * Supprimer une session
    */
   const handleDelete = (sessionId: string) => {
     if (confirm("Êtes-vous sûr de vouloir supprimer cette session ?")) {
       deleteSession(sessionId);
-      if (selectedSession?.id === sessionId) {
-        setSelectedSession(null);
-      }
     }
   };
 
@@ -67,192 +47,6 @@ export function HistoryPage() {
   const sortedSessions = [...sessions].sort(
     (a, b) => b.createdAt - a.createdAt,
   );
-
-  if (selectedSession) {
-    return (
-      <div className="min-h-screen bg-transparent pb-20">
-        {/* Header */}
-        <header className="border-b sticky top-0 bg-background z-10">
-          <div className="container mx-auto px-4 py-4">
-            <div className="flex items-center justify-between">
-              <Button variant="ghost" onClick={closeDetail}>
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Retour à l'historique
-              </Button>
-
-              <h1 className="text-xl font-bold">Détail de la session</h1>
-
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={() => handleDelete(selectedSession.id)}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </header>
-
-        <main className="container mx-auto px-4 py-6 max-w-4xl">
-          <div className="space-y-6">
-            {/* Informations générales */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Informations</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Date</span>
-                  <span className="font-medium">
-                    {formatDate(new Date(selectedSession.createdAt))}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Durée</span>
-                  <span className="font-medium">
-                    {Math.round(selectedSession.duration / 60000)} min
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Vollées</span>
-                  <span className="font-medium">
-                    {selectedSession.volleys.length}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Lancers totaux</span>
-                  <span className="font-medium">
-                    {selectedSession.stats.totalThrows}
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Statistiques */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Statistiques</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-4 bg-muted rounded-lg">
-                    <p className="text-3xl font-bold text-primary">
-                      {selectedSession.stats.averageConsistency.toFixed(0)}%
-                    </p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Régularité moyenne
-                    </p>
-                  </div>
-
-                  <div className="text-center p-4 bg-muted rounded-lg">
-                    <p className="text-3xl font-bold text-primary">
-                      {selectedSession.stats.averageTechnicalScore.toFixed(0)}
-                    </p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Score technique moyen
-                    </p>
-                  </div>
-                </div>
-
-                {/* Tendance */}
-                <div className="mt-4 p-3 border rounded-lg flex items-center gap-2">
-                  <TrendingUp
-                    className={`w-5 h-5 ${
-                      selectedSession.stats.consistencyTrend === "improving"
-                        ? "text-success"
-                        : selectedSession.stats.consistencyTrend === "declining"
-                          ? "text-error"
-                          : "text-muted-foreground"
-                    }`}
-                  />
-                  <div className="flex-1">
-                    <p className="text-sm font-medium">
-                      Tendance :{" "}
-                      {selectedSession.stats.consistencyTrend === "improving"
-                        ? "En progression"
-                        : selectedSession.stats.consistencyTrend === "declining"
-                          ? "En régression"
-                          : "Stable"}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Liste des vollées */}
-            <Card>
-              <CardHeader>
-                <CardTitle>
-                  Vollées ({selectedSession.volleys.length})
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {selectedSession.volleys.map((volley, index) => (
-                    <div
-                      key={volley.id}
-                      className="p-4 border rounded-lg hover:border-primary transition-colors"
-                    >
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-3">
-                          <Badge>Volée {index + 1}</Badge>
-                          {selectedSession.stats.bestVolley?.id ===
-                            volley.id && (
-                            <Badge variant="success">Meilleure</Badge>
-                          )}
-                        </div>
-
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => viewVolleyAnalysis(volley.id)}
-                        >
-                          <Eye className="mr-2 h-4 w-4" />
-                          Voir
-                        </Button>
-                      </div>
-
-                      <div className="grid grid-cols-3 gap-3 text-sm">
-                        <div className="text-center">
-                          <p className="text-muted-foreground text-xs">
-                            Régularité
-                          </p>
-                          <p className="font-medium">
-                            {volley.comparison.consistencyIndex}%
-                          </p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-muted-foreground text-xs">
-                            Technique moy.
-                          </p>
-                          <p className="font-medium">
-                            {(
-                              volley.throws.reduce(
-                                (sum, t) => sum + t.analysis.technicalScore,
-                                0,
-                              ) / 3
-                            ).toFixed(0)}
-                          </p>
-                        </div>
-                        <div className="text-center">
-                          <p className="text-muted-foreground text-xs">
-                            Écarts
-                          </p>
-                          <p className="font-medium">
-                            {volley.comparison.deviations.length}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </main>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-transparent pb-20">
@@ -293,73 +87,171 @@ export function HistoryPage() {
             </div>
 
             {sortedSessions.map((session) => (
-              <Card
-                key={session.id}
-                className="cursor-pointer hover:border-primary transition-colors glass-card"
-                onClick={() => viewSession(session)}
-              >
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="text-lg">
-                        {formatDateShort(new Date(session.createdAt))}
-                      </CardTitle>
-                      <CardDescription>
-                        {session.volleys.length} volée(s) ·{" "}
-                        {session.stats.totalThrows} lancers
-                      </CardDescription>
-                    </div>
+              <Card key={session.id} className="glass-card overflow-hidden">
+                <Accordion type="single" collapsible className="w-full">
+                  <AccordionItem value={session.id} className="border-none">
+                    <AccordionTrigger className="px-6 hover:no-underline hover:bg-white/5 transition-colors">
+                      <div className="flex items-center justify-between w-full pr-4">
+                        <div className="text-left">
+                          <div className="flex items-center gap-3 mb-1">
+                            <span className="font-bold text-lg">
+                              {formatDateShort(new Date(session.createdAt))}
+                            </span>
+                            <Badge
+                              variant={
+                                session.stats.consistencyTrend === "improving"
+                                  ? "success"
+                                  : session.stats.consistencyTrend ===
+                                      "declining"
+                                    ? "error"
+                                    : "secondary"
+                              }
+                            >
+                              {session.stats.consistencyTrend === "improving"
+                                ? "↗ Progression"
+                                : session.stats.consistencyTrend === "declining"
+                                  ? "↘ Régression"
+                                  : "→ Stable"}
+                            </Badge>
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {session.volleys.length} volée(s) ·{" "}
+                            {session.stats.totalThrows} lancers
+                          </div>
+                        </div>
 
-                    <div className="flex items-center gap-2">
-                      <Badge
-                        variant={
-                          session.stats.consistencyTrend === "improving"
-                            ? "success"
-                            : session.stats.consistencyTrend === "declining"
-                              ? "error"
-                              : "secondary"
-                        }
-                      >
-                        {session.stats.consistencyTrend === "improving"
-                          ? "↗ En progression"
-                          : session.stats.consistencyTrend === "declining"
-                            ? "↘ En régression"
-                            : "→ Stable"}
-                      </Badge>
-                    </div>
-                  </div>
-                </CardHeader>
+                        <div className="flex gap-8 text-right">
+                          <div>
+                            <p className="text-2xl font-bold text-primary">
+                              {session.stats.averageConsistency.toFixed(0)}%
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              Régularité
+                            </p>
+                          </div>
+                          <div>
+                            <p className="text-2xl font-bold text-primary">
+                              {session.stats.averageTechnicalScore.toFixed(0)}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              Technique
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </AccordionTrigger>
 
-                <CardContent>
-                  <div className="grid grid-cols-3 gap-4 text-center">
-                    <div>
-                      <p className="text-2xl font-bold text-primary">
-                        {session.stats.averageConsistency.toFixed(0)}%
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Régularité
-                      </p>
-                    </div>
+                    <AccordionContent className="px-6 pb-6 pt-2 bg-black/20">
+                      <div className="space-y-6">
+                        <div className="flex justify-end">
+                          <Button
+                            variant="destructive"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDelete(session.id);
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Supprimer la session
+                          </Button>
+                        </div>
 
-                    <div>
-                      <p className="text-2xl font-bold text-primary">
-                        {session.stats.averageTechnicalScore.toFixed(0)}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Technique
-                      </p>
-                    </div>
+                        {/* Graphiques de la session */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          <Card className="bg-black/40 border-white/10">
+                            <CardHeader>
+                              <CardTitle className="text-sm">
+                                Analyse Radar Moyenne
+                              </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              {/* On prend la dernière volée comme représentative ou une moyenne si on avait l'objet */}
+                              {session.volleys.length > 0 && (
+                                <BiomechanicsRadar
+                                  data={[
+                                    {
+                                      value:
+                                        session.volleys[0].comparison
+                                          .elbowConsistency,
+                                      label: "COUDE",
+                                    },
+                                    {
+                                      value:
+                                        session.volleys[0].comparison
+                                          .wristConsistency,
+                                      label: "POIGNET",
+                                    },
+                                    {
+                                      value:
+                                        session.volleys[0].comparison
+                                          .shoulderConsistency,
+                                      label: "ÉPAULE",
+                                    },
+                                    {
+                                      value:
+                                        session.volleys[0].comparison
+                                          .trunkConsistency,
+                                      label: "TRONC",
+                                    },
+                                    {
+                                      value:
+                                        session.volleys[0].comparison
+                                          .gazeConsistency,
+                                      label: "STABILITÉ",
+                                    },
+                                  ]}
+                                />
+                              )}
+                            </CardContent>
+                          </Card>
 
-                    <div>
-                      <p className="text-2xl font-bold text-primary">
-                        {Math.round(session.duration / 60000)}min
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Durée
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
+                          <div className="space-y-4">
+                            <h4 className="font-medium text-sm text-muted-foreground mb-2">
+                              Détail des volées
+                            </h4>
+                            {session.volleys.map((volley, idx) => (
+                              <div
+                                key={volley.id}
+                                className="p-3 border rounded bg-white/5 flex justify-between items-center"
+                              >
+                                <div>
+                                  <span className="font-bold">
+                                    Volée {idx + 1}
+                                  </span>
+                                  <span className="text-xs text-muted-foreground ml-2">
+                                    {new Date(
+                                      volley.createdAt,
+                                    ).toLocaleTimeString()}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                  <div className="text-right">
+                                    <div className="text-sm font-bold text-primary">
+                                      {volley.comparison.consistencyIndex}%
+                                    </div>
+                                    <div className="text-[10px] text-muted-foreground">
+                                      Régularité
+                                    </div>
+                                  </div>
+                                  <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    onClick={() =>
+                                      viewVolleyAnalysis(volley.id)
+                                    }
+                                  >
+                                    <Eye className="h-4 w-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
               </Card>
             ))}
           </div>

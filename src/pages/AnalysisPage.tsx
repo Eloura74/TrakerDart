@@ -1,8 +1,3 @@
-/**
- * Page d'analyse détaillée d'une volée
- * Style: Glassmorphism / Pro Dashboard
- */
-
 import { useMemo, useState } from "react";
 import {
   ArrowLeft,
@@ -27,10 +22,8 @@ import { FeedbackList } from "@/components/analysis/FeedbackCard";
 import { AngleChartGrid } from "@/components/analysis/AngleChart";
 import { DataTable } from "@/components/analysis/DataTable";
 import { ThrowComparison } from "@/components/analysis/ThrowComparison";
-import { FeedbackCardPro } from "@/components/analysis/FeedbackCardPro";
-import { TrainingPlan } from "@/components/analysis/TrainingPlan";
+import { ThrowReplay } from "@/components/analysis/ThrowReplay";
 import { MotionOverlay } from "@/components/analysis/MotionOverlay";
-import { BiomechanicsRadar } from "@/components/analysis/BiomechanicsRadar";
 import { useAppStore } from "@/store/useAppStore";
 import { generateRecommendations } from "@/lib/feedback/generator";
 import {
@@ -39,6 +32,9 @@ import {
   generateTrainingPlan,
 } from "@/lib/feedback/professionalRecommendations";
 import type { Volley, Throw } from "@/types";
+import { TrainingPlan } from "@/components/analysis/TrainingPlan";
+import { FeedbackCardPro } from "@/components/analysis/FeedbackCardPro";
+import { BiomechanicsRadar } from "@/components/analysis/BiomechanicsRadar";
 
 interface AnalysisPageProps {
   volleyId?: string;
@@ -361,6 +357,12 @@ export function AnalysisPage({ volleyId }: AnalysisPageProps) {
         {/* Vue Graphiques */}
         {selectedView === "charts" && (
           <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+            {/* Replay Vidéo */}
+            <ThrowReplay
+              throws={volley.throws as [Throw, Throw, Throw]}
+              referenceIndex={volley.comparison.referenceThrowIndex}
+            />
+
             {/* Superposition des mouvements */}
             <MotionOverlay
               throws={volley.throws as [Throw, Throw, Throw]}
