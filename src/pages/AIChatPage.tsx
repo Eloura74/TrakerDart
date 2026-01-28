@@ -68,7 +68,7 @@ export function AIChatPage() {
       content: '👋 Bonjour ! Je suis votre coach IA personnel. Posez-moi vos questions sur votre technique, votre entraînement ou vos performances !',
       timestamp: new Date(),
     }]);
-  }, [toast]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Scroll auto vers le bas
   useEffect(() => {
@@ -138,7 +138,7 @@ export function AIChatPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black">
+    <div className="min-h-screen app-bg-gradient">
       <AppHeader />
 
       <div className="container mx-auto px-4 py-8 max-w-4xl">

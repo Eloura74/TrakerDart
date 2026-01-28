@@ -1,0 +1,47 @@
+/**
+ * Gradient background global uniforme pour toutes les pages
+ * Background cohérent avec thème cyan/noir moderne
+ */
+
+.app-bg-gradient {
+  background: linear-gradient(
+    180deg,
+    #000000 0%,
+    #0a0a0a 20%,
+    #0d1117 40%,
+    #111827 60%,
+    #0a0a0a 80%,
+    #000000 100%
+  );
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+/* Alternative avec accent cyan subtil */
+.app-bg-gradient-cyan {
+  background: linear-gradient(
+    180deg,
+    #000000 0%,
+    #0a1520 25%,
+    #0d1b2a 50%,
+    #0a1520 75%,
+    #000000 100%
+  );
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+/* Pattern overlay subtil (optionnel) */
+.app-bg-pattern::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    radial-gradient(circle at 20% 30%, rgba(0, 242, 255, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(6, 182, 212, 0.02) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}

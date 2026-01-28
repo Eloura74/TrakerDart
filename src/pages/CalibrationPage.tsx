@@ -88,7 +88,7 @@ export function CalibrationPage() {
   const quality = checkQuality();
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black pb-20 text-white">
+    <div className="min-h-screen app-bg-gradient pb-20 text-white">
       {/* Header */}
       <header className="border-b border-white/10 sticky top-0 bg-black/80 backdrop-blur-xl z-10">
         <div className="container mx-auto px-4 py-4">

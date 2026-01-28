@@ -11,9 +11,9 @@ import type {
   AIChatMessage,
   AIAnalysisContext,
   AIUsageStats,
-} from '@/types/ai';
-import { AI_MODELS, AI_SYSTEM_PROMPTS } from '@/types/ai';
-import type { TrainingSession } from '@/types';
+} from "@/types/ai";
+import { AI_MODELS, AI_SYSTEM_PROMPTS } from "@/types/ai";
+import type { TrainingSession } from "@/types";
 
 /**
  * Configuration OpenAI
@@ -27,7 +27,7 @@ interface OpenAIConfig {
  * Message OpenAI
  */
 interface OpenAIMessage {
-  role: 'system' | 'user' | 'assistant';
+  role: "system" | "user" | "assistant";
   content: string;
 }
 
@@ -57,7 +57,7 @@ interface OpenAIResponse {
 export class AIService {
   private config: OpenAIConfig;
   private modelConfig: AIModelConfig;
-  private baseURL = 'https://api.openai.com/v1';
+  private baseURL = "https://api.openai.com/v1";
   private usageStats: AIUsageStats;
 
   constructor(apiKey: string, modelConfig: AIModelConfig) {
@@ -97,15 +97,15 @@ export class AIService {
     context?: AIAnalysisContext
   ): Promise<AIRecommendation[]> {
     if (!this.modelConfig.enabled) {
-      throw new Error('IA désactivée dans les paramètres');
+      throw new Error("IA désactivée dans les paramètres");
     }
 
     // Préparer le contexte d'analyse
     const analysis = this.analyzeSessionsData(sessions);
-    
+
     const prompt = `Données: ${analysis}
 
-${context?.customPrompt ? `Focus: ${context.customPrompt}` : ''}
+${context?.customPrompt ? `Focus: ${context.customPrompt}` : ""}
 
 Génère EXACTEMENT 2 recommandations ULTRA COURTES en JSON strict:
 
@@ -135,29 +135,34 @@ Génère EXACTEMENT 2 recommandations ULTRA COURTES en JSON strict:
 Réponds UNIQUEMENT le JSON, rien d'autre.`;
 
     const response = await this.chat([
-      { role: 'system', content: AI_SYSTEM_PROMPTS.coach },
-      { role: 'user', content: prompt }
+      { role: "system", content: AI_SYSTEM_PROMPTS.coach },
+      { role: "user", content: prompt },
     ]);
 
     // Parser la réponse JSON (avec extraction robuste)
     try {
       const jsonContent = this.extractJSON(response.content);
       const data = JSON.parse(jsonContent);
-      
+
       if (!data.recommendations || !Array.isArray(data.recommendations)) {
-        throw new Error('Format de réponse invalide');
+        throw new Error("Format de réponse invalide");
       }
 
-      return data.recommendations.map((rec: Partial<AIRecommendation>) => ({
-        ...rec,
-        id: crypto.randomUUID(),
-        generatedAt: new Date(),
-        modelUsed: this.modelConfig.model,
-      }) as AIRecommendation);
+      return data.recommendations.map(
+        (rec: Partial<AIRecommendation>) =>
+          ({
+            ...rec,
+            id: crypto.randomUUID(),
+            generatedAt: new Date(),
+            modelUsed: this.modelConfig.model,
+          } as AIRecommendation)
+      );
     } catch (error) {
-      console.error('Erreur parsing recommandations:', error);
-      console.error('Contenu reçu:', response.content);
-      throw new Error('Impossible de parser les recommandations IA. Essayez de réduire la température ou changez de modèle.');
+      console.error("Erreur parsing recommandations:", error);
+      console.error("Contenu reçu:", response.content);
+      throw new Error(
+        "Impossible de parser les recommandations IA. Essayez de réduire la température ou changez de modèle."
+      );
     }
   }
 
@@ -170,58 +175,101 @@ Réponds UNIQUEMENT le JSON, rien d'autre.`;
     duration: number = 30
   ): Promise<AITrainingPlan> {
     if (!this.modelConfig.enabled) {
-      throw new Error('IA désactivée dans les paramètres');
+      throw new Error("IA désactivée dans les paramètres");
     }
 
     const analysis = this.analyzeSessionsData(sessions);
 
-    const prompt = `Crée un plan d'entraînement personnalisé de ${duration} jours pour atteindre cet objectif : "${goal}"
+    // Calculer nombre de semaines (max 4 pour plan complet)
+    const weeksCount = Math.min(Math.ceil(duration / 7), 4);
 
-Données actuelles du joueur :
+    const prompt = `Tu es un COACH PROFESSIONNEL DE FLÉCHETTES (darts). Crée un plan d'entraînement de ${duration} jours.
+
+OBJECTIF: ${goal}
+
+DONNÉES JOUEUR:
 ${analysis}
 
-Format de réponse (JSON) :
+⚠️ CONTEXTE IMPORTANT:
+- TrakerDart analyse la BIOMÉCANIQUE du geste de lancer de fléchettes
+- On mesure: régularité du geste, angles articulaires (épaule, coude, poignet), fluidité du mouvement
+- Les exercices doivent améliorer le GESTE TECHNIQUE, pas la précision de la cible
+
+⚠️ RÈGLES ABSOLUES:
+1. Génère EXACTEMENT ${weeksCount} semaines (weekNumber: 1 à ${weeksCount})
+2. Chaque semaine: 3 sessions (day: 1, 2, 4)
+3. Chaque session: 2 exercices spécifiques fléchettes
+4. Format JSON strict uniquement
+
+⚠️ TYPES D'EXERCICES RÉALISTES POUR FLÉCHETTES:
+- Répétition geste à vide (sans fléchette)
+- Lancers au ralenti pour sentir le mouvement
+- Travail de l'alignement coude-épaule
+- Exercices de stabilité du poignet
+- Lancers avec feedback vidéo/miroir
+- Séries de lancers avec focus sur une articulation
+- Routines de concentration et respiration
+- Exercices d'équilibre et posture
+
+🚫 NE JAMAIS PROPOSER:
+- "Posture Drill" ou noms génériques
+- Exercices sans rapport avec fléchettes (musculation, cardio, etc.)
+- Exercices irréalisables (visualisation technique abstraite)
+
+✅ EXEMPLES BONS EXERCICES:
+- "Alignement coude-épaule au ralenti" → Faire le geste 30x au ralenti, focus alignement
+- "Stabilité du poignet" → 50 lancers en gardant poignet fixe
+- "Routine de préparation mentale" → 5min respiration + visualisation avant session
+- "Répétition du mouvement à vide" → 100 répétitions sans fléchette, focus fluidité
+
+Réponds UNIQUEMENT JSON (${weeksCount} semaines complètes):
 {
   "duration": ${duration},
   "goal": "${goal}",
-  "currentLevel": "Description du niveau actuel",
-  "targetLevel": "Description du niveau visé",
+  "currentLevel": "Régularité moyenne X%, Score technique Y%",
+  "targetLevel": "Régularité visée A%, Score technique B%",
   "weeks": [
     {
       "weekNumber": 1,
-      "focus": "Focus de la semaine",
+      "focus": "Focus clair (ex: Alignement et stabilité)",
       "sessions": [
         {
           "day": 1,
-          "duration": 60,
+          "duration": 30,
           "exercises": [
             {
-              "name": "Nom exercice",
-              "description": "Description",
+              "name": "Nom exercice spécifique fléchettes",
+              "description": "Description concrète et actionnable",
               "sets": 3,
-              "reps": 10,
+              "reps": 20,
               "restSeconds": 60,
-              "focusArea": "Zone ciblée"
+              "focusArea": "Technique | Posture | Mental | Précision"
             }
           ],
-          "notes": "Notes importantes"
+          "notes": "Conseil concret pour la session"
         }
       ]
     }
   ]
 }`;
 
-    const response = await this.chat([
-      { role: 'system', content: AI_SYSTEM_PROMPTS.trainer },
-      { role: 'user', content: prompt }
-    ]);
+    // maxTokens pour plans d'entraînement (limite modèle : 4096)
+    const response = await this.chat(
+      [
+        { role: "system", content: AI_SYSTEM_PROMPTS.trainer },
+        { role: "user", content: prompt },
+      ],
+      {
+        maxTokens: 3500, // Sécurité : en dessous de la limite 4096
+      }
+    );
 
     try {
       const jsonContent = this.extractJSON(response.content);
       const data = JSON.parse(jsonContent);
-      
+
       if (!data.weeks || !Array.isArray(data.weeks)) {
-        throw new Error('Format de plan invalide');
+        throw new Error("Format de plan invalide");
       }
 
       return {
@@ -231,9 +279,11 @@ Format de réponse (JSON) :
         modelUsed: this.modelConfig.model,
       };
     } catch (error) {
-      console.error('Erreur parsing plan d\'entraînement:', error);
-      console.error('Contenu reçu:', response.content);
-      throw new Error('Impossible de parser le plan d\'entraînement. Essayez de simplifier votre objectif.');
+      console.error("Erreur parsing plan d'entraînement:", error);
+      console.error("Contenu reçu:", response.content);
+      throw new Error(
+        "Impossible de parser le plan d'entraînement. Essayez de simplifier votre objectif."
+      );
     }
   }
 
@@ -247,10 +297,10 @@ Format de réponse (JSON) :
     const config = { ...this.modelConfig, ...options };
 
     const response = await fetch(`${this.baseURL}/chat/completions`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.config.apiKey}`,
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${this.config.apiKey}`,
       },
       body: JSON.stringify({
         model: config.model,
@@ -262,7 +312,9 @@ Format de réponse (JSON) :
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(`OpenAI API error: ${error.error?.message || 'Unknown error'}`);
+      throw new Error(
+        `OpenAI API error: ${error.error?.message || "Unknown error"}`
+      );
     }
 
     const data: OpenAIResponse = await response.json();
@@ -296,10 +348,10 @@ Format de réponse (JSON) :
     const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (jsonMatch) {
       const rawJson = jsonMatch[0].trim();
-      
+
       // Tenter de réparer le JSON tronqué
       const repairedJson = this.repairTruncatedJSON(rawJson);
-      
+
       return repairedJson;
     }
 
@@ -316,8 +368,33 @@ Format de réponse (JSON) :
       JSON.parse(json);
       return json;
     } catch (error) {
-      // JSON invalide, essayer de le réparer
-      
+      console.log("🔧 Tentative réparation JSON tronqué...");
+
+      // Supprimer la dernière propriété incomplète (souvent la cause du problème)
+      // Chercher le dernier ":" ou "," pour trouver le début de la propriété incomplète
+      const lastColon = json.lastIndexOf(":");
+      const lastComma = json.lastIndexOf(",");
+      const lastBrace = json.lastIndexOf("{");
+      const lastBracket = json.lastIndexOf("[");
+
+      // Si on a un ":" après la dernière virgule, on a probablement une propriété incomplète
+      if (
+        lastColon > lastComma &&
+        lastColon > json.lastIndexOf("}") &&
+        lastColon > json.lastIndexOf("]")
+      ) {
+        // Trouver le début de cette propriété (le dernier "," ou "{" avant le ":")
+        const cutPoint = Math.max(lastComma, lastBrace, lastBracket);
+        json = json.substring(0, cutPoint);
+
+        // Si on a coupé après une virgule, la supprimer aussi
+        if (json.endsWith(",")) {
+          json = json.substring(0, json.length - 1);
+        }
+
+        console.log("🔧 Propriété incomplète supprimée");
+      }
+
       // Compter les accolades et crochets ouverts/fermés
       const openBraces = (json.match(/\{/g) || []).length;
       const closeBraces = (json.match(/\}/g) || []).length;
@@ -328,19 +405,30 @@ Format de réponse (JSON) :
       const quotes = (json.match(/"/g) || []).length;
       if (quotes % 2 !== 0) {
         json += '"';
+        console.log("🔧 Quote fermé");
       }
 
       // Fermer les crochets manquants
-      for (let i = 0; i < (openBrackets - closeBrackets); i++) {
-        json += ']';
+      for (let i = 0; i < openBrackets - closeBrackets; i++) {
+        json += "]";
+        console.log("🔧 ] ajouté");
       }
 
       // Fermer les accolades manquantes
-      for (let i = 0; i < (openBraces - closeBraces); i++) {
-        json += '}';
+      for (let i = 0; i < openBraces - closeBraces; i++) {
+        json += "}";
+        console.log("🔧 } ajouté");
       }
 
-      return json;
+      // Vérifier si maintenant le JSON est valide
+      try {
+        JSON.parse(json);
+        console.log("✅ JSON réparé avec succès !");
+        return json;
+      } catch (e) {
+        console.error("❌ Impossible de réparer le JSON");
+        throw new Error("JSON irréparable");
+      }
     }
   }
 
@@ -349,27 +437,44 @@ Format de réponse (JSON) :
    */
   private analyzeSessionsData(sessions: TrainingSession[]): string {
     if (sessions.length === 0) {
-      return 'Aucune session disponible pour l\'analyse.';
+      return "Aucune session disponible pour l'analyse.";
     }
 
-    const totalThrows = sessions.reduce((sum, s) => sum + (s.stats?.totalThrows || 0), 0);
-    const avgConsistency = sessions.reduce((sum, s) => sum + (s.stats?.averageConsistency || 0), 0) / sessions.length;
-    const avgTechnical = sessions.reduce((sum, s) => sum + (s.stats?.averageTechnicalScore || 0), 0) / sessions.length;
-    
+    const totalThrows = sessions.reduce(
+      (sum, s) => sum + (s.stats?.totalThrows || 0),
+      0
+    );
+    const avgConsistency =
+      sessions.reduce((sum, s) => sum + (s.stats?.averageConsistency || 0), 0) /
+      sessions.length;
+    const avgTechnical =
+      sessions.reduce(
+        (sum, s) => sum + (s.stats?.averageTechnicalScore || 0),
+        0
+      ) / sessions.length;
+
     // Calculer les tendances
-    const scores = sessions.map(s => s.stats?.averageConsistency || 0);
-    const trend = scores.length > 1 
-      ? ((scores[scores.length - 1] - scores[0]) / scores[0] * 100).toFixed(1)
-      : '0';
+    const scores = sessions.map((s) => s.stats?.averageConsistency || 0);
+    const trend =
+      scores.length > 1
+        ? (((scores[scores.length - 1] - scores[0]) / scores[0]) * 100).toFixed(
+            1
+          )
+        : "0";
 
     return `Sessions analysées : ${sessions.length}
 Lancers totaux : ${totalThrows}
 Régularité moyenne : ${avgConsistency.toFixed(1)}%
 Score technique moyen : ${avgTechnical.toFixed(1)}%
-Tendance : ${trend}% ${parseFloat(trend) > 0 ? '📈' : '📉'}
+Tendance : ${trend}% ${parseFloat(trend) > 0 ? "📈" : "📉"}
 
-Dernière session : ${new Date(sessions[sessions.length - 1].createdAt).toLocaleDateString()}
-Temps de pratique total : ${sessions.reduce((sum, s) => sum + (s.duration || 0), 0)} min`;
+Dernière session : ${new Date(
+      sessions[sessions.length - 1].createdAt
+    ).toLocaleDateString()}
+Temps de pratique total : ${sessions.reduce(
+      (sum, s) => sum + (s.duration || 0),
+      0
+    )} min`;
   }
 
   /**
@@ -381,7 +486,8 @@ Temps de pratique total : ${sessions.reduce((sum, s) => sum + (s.duration || 0),
     this.usageStats.totalRequests++;
     this.usageStats.totalTokensUsed += tokensUsed;
     this.usageStats.totalCostUSD += cost;
-    this.usageStats.requestsByModel[model] = (this.usageStats.requestsByModel[model] || 0) + 1;
+    this.usageStats.requestsByModel[model] =
+      (this.usageStats.requestsByModel[model] || 0) + 1;
     this.usageStats.lastUsed = new Date();
 
     this.saveUsageStats();
@@ -413,14 +519,14 @@ Temps de pratique total : ${sessions.reduce((sum, s) => sum + (s.duration || 0),
    * Sauvegarder la config du modèle
    */
   private saveModelConfig(): void {
-    localStorage.setItem('ai_model_config', JSON.stringify(this.modelConfig));
+    localStorage.setItem("ai_model_config", JSON.stringify(this.modelConfig));
   }
 
   /**
    * Charger les stats depuis localStorage
    */
   private loadUsageStats(): AIUsageStats {
-    const saved = localStorage.getItem('ai_usage_stats');
+    const saved = localStorage.getItem("ai_usage_stats");
     if (saved) {
       return JSON.parse(saved);
     }
@@ -438,7 +544,7 @@ Temps de pratique total : ${sessions.reduce((sum, s) => sum + (s.duration || 0),
    * Sauvegarder les stats
    */
   private saveUsageStats(): void {
-    localStorage.setItem('ai_usage_stats', JSON.stringify(this.usageStats));
+    localStorage.setItem("ai_usage_stats", JSON.stringify(this.usageStats));
   }
 }
 

@@ -67,7 +67,7 @@ export function DashboardEditor({
       <Button
         variant={isEditable ? "destructive" : "outline"}
         onClick={onToggleEdit}
-        className="gap-2"
+        className="gap-2 border-white/20 hover:bg-white/5 hover:border-white/30"
         size="sm"
       >
         {isEditable ? (

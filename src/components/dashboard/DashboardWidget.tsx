@@ -50,17 +50,21 @@ export function WidgetRenderer({
         h-full w-full overflow-hidden flex flex-col 
         bg-card/40 backdrop-blur-md border-white/10 
         transition-all duration-300
-        ${!editMode && onClick ? "cursor-pointer hover:scale-[1.02] hover:border-white/30 hover:shadow-lg hover:shadow-cyan-500/10" : ""}
+        ${
+          !editMode && onClick
+            ? "cursor-pointer hover:scale-[1.02] hover:border-white/30 hover:shadow-lg hover:shadow-cyan-500/10"
+            : ""
+        }
         ${hasBackground ? "relative" : ""}
       `}
     >
       {hasBackground && (
         <>
           <div
-            className="absolute inset-0 z-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
+            className="absolute inset-0 z-0 bg-cover bg-center opacity-110 transition-transform duration-500 group-hover:scale-110"
             style={{ backgroundImage: `url(${widget.config.backgroundImage})` }}
           />
-          <div className="absolute inset-0 z-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80" />
+          <div className="absolute inset-0 z-0 bg-gradient-to-b from-black/50 via-black/30 to-black/70" />
         </>
       )}
 

@@ -136,7 +136,7 @@ export function AnalysisPage({ volleyId }: AnalysisPageProps) {
     volley.throws.reduce((sum, t) => sum + t.analysis.technicalScore, 0) / 3;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black pb-20 text-white selection:bg-cyan-500/30">
+    <div className="min-h-screen app-bg-gradient pb-20 text-white selection:bg-cyan-500/30">
       {/* Background Grid Animation */}
       <div className="fixed inset-0 z-0 pointer-events-none">
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_100%)]" />

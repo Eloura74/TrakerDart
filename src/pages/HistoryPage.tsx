@@ -81,7 +81,7 @@ export function HistoryPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-white">
+    <div className="min-h-screen app-bg-gradient text-white">
       <AppHeader />
 
       <main className="container mx-auto px-4 py-8 max-w-6xl">

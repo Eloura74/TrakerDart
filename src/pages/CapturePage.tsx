@@ -220,60 +220,15 @@ export function CapturePage() {
     ((currentThrowIndex + (recordingState === "completed" ? 1 : 0)) / 3) * 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black pb-20 text-white overflow-hidden">
-      {/* Background Grid */}
-      <div className="fixed inset-0 z-0 pointer-events-none opacity-20">
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:40px_40px]" />
-      </div>
-
-      {/* Header HUD */}
-      <header className="border-b border-white/10 sticky top-0 bg-black/80 backdrop-blur-md z-20">
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
-            <Button
-              variant="ghost"
-              onClick={goBack}
-              className="text-gray-400 hover:text-white hover:bg-white/5"
-            >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              ABORT
-            </Button>
-
-            <div className="text-center">
-              <h1 className="text-lg font-bold font-mono tracking-widest text-cyan-500">
-                SEQUENCE D'ACQUISITION
-              </h1>
-              <div className="flex items-center justify-center gap-2 text-xs text-gray-500 font-mono">
-                <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                REC STATUS: {recordingState.toUpperCase()}
-              </div>
-            </div>
-
-            <div className="w-24 flex justify-end">
-              <Badge
-                variant="outline"
-                className="font-mono border-cyan-500/30 text-cyan-400"
-              >
-                CAM_01
-              </Badge>
-            </div>
-          </div>
-
-          {/* Barre de progression Tech */}
-          <div className="mt-4 relative h-1 bg-white/5 w-full overflow-hidden">
-            <div
-              className="absolute top-0 left-0 h-full bg-cyan-500 shadow-[0_0_10px_rgba(6,182,212,0.8)] transition-all duration-500"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen app-bg-gradient text-white">
+      {/* Header Standard */}
+      <AppHeader />
 
       {/* Zone de capture */}
-      <main className="container mx-auto px-4 py-6 relative z-10">
-        <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Colonne Gauche - Caméra & HUD */}
-          <div className="lg:col-span-8 space-y-4">
+      <main className="container mx-auto px-4 py-4 relative z-10">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-4 items-start">
+          {/* Colonne Gauche - Caméra (2/3 width) */}
+          <div className="lg:col-span-2 space-y-3">
             <div className="relative rounded-xl overflow-hidden border border-white/10 bg-black shadow-2xl group">
               {/* Viseur HUD Overlay */}
               <div className="absolute inset-0 z-20 pointer-events-none">
@@ -354,8 +309,8 @@ export function CapturePage() {
             </div>
           </div>
 
-          {/* Colonne Droite - Stats Temps Réel */}
-          <div className="lg:col-span-4 space-y-4">
+          {/* Colonne Droite - Stats Temps Réel (1/3 width) */}
+          <div className="lg:col-span-1 space-y-3 lg:sticky lg:top-20">
             {/* État Actuel */}
             <Card className="border-white/10 bg-black/40 backdrop-blur-sm">
               <CardHeader className="pb-2">

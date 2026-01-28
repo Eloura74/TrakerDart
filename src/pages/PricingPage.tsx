@@ -93,7 +93,7 @@ export function PricingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black text-white">
+    <div className="min-h-screen app-bg-gradient text-white">
       <AppHeader />
 
       <div className="container mx-auto px-4 py-12">

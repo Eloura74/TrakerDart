@@ -65,7 +65,7 @@ export function AITrainingPlanPage() {
 
     const service = new AIService(apiKey, settings.modelConfig);
     setAiService(service);
-  }, [toast]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   /**
    * Générer le plan d'entraînement
@@ -117,7 +117,7 @@ export function AITrainingPlanPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black">
+    <div className="min-h-screen app-bg-gradient">
       <AppHeader />
 
       <div className="container mx-auto px-4 py-8 max-w-5xl">

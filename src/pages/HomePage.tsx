@@ -110,6 +110,12 @@ export function HomePage() {
             0,
           ) / sessions.length
         : 0;
+    
+    // Calculer le score moyen (utiliser consistency comme proxy si pas de score direct)
+    const avgScore =
+      sessions.length > 0
+        ? sessions.reduce((sum, s) => sum + (s.stats?.averageConsistency || 0), 0) / sessions.length
+        : 0;
 
     // Prepare chart data
     const last10Sessions = [...sessions]
@@ -147,7 +153,12 @@ export function HomePage() {
           case "stats-consistency":
             return {
               ...w,
-              data: { ...w.data, value: `${avgConsistency.toFixed(0)}%` },
+              data: { ...w.data, value: `${avgConsistency.toFixed(1)}%` },
+            };
+          case "stats-score":
+            return {
+              ...w,
+              data: { ...w.data, value: `${avgScore.toFixed(1)}%` },
             };
           case "chart-evolution":
             return { ...w, data: chartData };
@@ -196,7 +207,7 @@ export function HomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black">
+    <div className="min-h-screen app-bg-gradient">
       {/* Header Moderne */}
       <AppHeader />
 
@@ -215,7 +226,8 @@ export function HomePage() {
             <Button
               onClick={handleStartSession}
               size="sm"
-              className="bg-gradient-to-r from-primary to-cyan-500 hover:from-primary/90 hover:to-cyan-500/90 shadow-lg shadow-primary/20"
+              variant="outline"
+              className="border-white/20 hover:bg-white/5 hover:border-white/30"
             >
               <PlayCircle className="h-4 w-4 mr-2" />
               Nouvelle Session

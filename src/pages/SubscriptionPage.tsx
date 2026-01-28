@@ -97,14 +97,14 @@ export function SubscriptionPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black flex items-center justify-center">
+      <div className="min-h-screen app-bg-gradient flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-cyan-500" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black">
+    <div className="min-h-screen app-bg-gradient">
       <AppHeader />
 
       <main className="container mx-auto px-4 py-8">

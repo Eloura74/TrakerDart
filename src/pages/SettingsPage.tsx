@@ -4,7 +4,7 @@
  */
 
 import { useState } from "react";
-import { User, Mail, Lock, Bell, Globe } from "lucide-react";
+import { User, Mail, Lock, Bell, Globe, ArrowLeft } from "lucide-react";
 import { AppHeader } from "@/components/layout/AppHeader";
 import {
   Card,
@@ -31,12 +31,20 @@ export function SettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black">
+    <div className="min-h-screen app-bg-gradient">
       <AppHeader />
 
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto space-y-6">
           <div>
+            <Button
+              variant="ghost"
+              onClick={() => window.history.back()}
+              className="mb-4"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Retour
+            </Button>
             <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-cyan-400 bg-clip-text text-transparent">
               Paramètres
             </h1>

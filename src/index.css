@@ -1,3 +1,6 @@
+/* Import global background gradient - DOIT être AVANT @tailwind */
+@import './styles/global-bg.css';
+
 /* Reset et configuration de base TailwindCSS */
 @tailwind base;
 @tailwind components;
