@@ -22,6 +22,7 @@ import { SettingsPage } from "./pages/SettingsPage";
 import { AISettingsPage } from "./pages/AISettingsPage";
 import { AIChatPage } from "./pages/AIChatPage";
 import { AITrainingPlanPage } from "./pages/AITrainingPlanPage";
+import { ArucoCalibrationPage } from "./pages/ArucoCalibrationPage";
 import { Loader2 } from "lucide-react";
 import "./index.css";
 
@@ -146,6 +147,9 @@ function App() {
 
       case "ai-training":
         return <AITrainingPlanPage />;
+
+      case "aruco-calibration":
+        return <ArucoCalibrationPage />;
 
       default:
         return (

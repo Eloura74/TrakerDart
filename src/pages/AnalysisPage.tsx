@@ -35,6 +35,7 @@ import type { Volley, Throw } from "@/types";
 import { TrainingPlan } from "@/components/analysis/TrainingPlan";
 import { FeedbackCardPro } from "@/components/analysis/FeedbackCardPro";
 import { BiomechanicsRadar } from "@/components/analysis/BiomechanicsRadar";
+import { AIRecommendationsSection } from "@/components/analysis/AIRecommendationsSection";
 
 interface AnalysisPageProps {
   volleyId?: string;
@@ -350,6 +351,28 @@ export function AnalysisPage({ volleyId }: AnalysisPageProps) {
                   <FeedbackList feedbacks={recommendations.feedbacks} />
                 </CardContent>
               </Card>
+            )}
+
+            {/* Recommandations IA Avancées */}
+            {currentSession && currentSession.volleys.length > 0 && (
+              <AIRecommendationsSection 
+                sessions={[
+                  {
+                    id: currentSession.id || crypto.randomUUID(),
+                    volleys: currentSession.volleys,
+                    stats: currentSession.stats || {
+                      totalThrows: currentSession.volleys.reduce((sum, v) => sum + v.throws.length, 0),
+                      averageConsistency: currentSession.volleys.reduce((sum, v) => sum + (v.comparison?.consistencyIndex || 0), 0) / currentSession.volleys.length,
+                      averageTechnicalScore: currentSession.volleys.reduce((sum, v) => {
+                        const avgScore = v.throws.reduce((s, t) => s + (t.analysis?.technicalScore || 0), 0) / v.throws.length;
+                        return sum + avgScore;
+                      }, 0) / currentSession.volleys.length,
+                    },
+                    createdAt: Date.now(),
+                    duration: 0,
+                  }
+                ]} 
+              />
             )}
           </div>
         )}
