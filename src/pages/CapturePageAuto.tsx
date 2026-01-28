@@ -3,7 +3,7 @@
  * Détection automatique du début et fin de chaque lancer
  */
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import {
   ArrowLeft,
   RotateCcw,
@@ -12,6 +12,8 @@ import {
   Zap,
   AlertCircle,
 } from "lucide-react";
+import { checkAndTrackFeature } from "@/services/featureGate";
+import { PaywallModal } from "@/components/subscription/PaywallModal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -23,6 +25,10 @@ import { compareThrows } from "@/lib/biomechanics/comparison";
 import { createMotionDetector } from "@/lib/biomechanics/motionDetector";
 import { generateId } from "@/lib/utils";
 import type { Pose, Throw, Volley } from "@/types";
+import { RealtimeCoach } from "@/services/realtimeCoach";
+import { CoachingOverlay } from "@/components/coaching/CoachingOverlay";
+import { CoachingSettings } from "@/components/coaching/CoachingSettings";
+import type { RealtimeCoachingConfig, CoachingFeedback } from "@/types/coaching";
 
 export function CapturePageAuto() {
   const {
@@ -39,16 +45,56 @@ export function CapturePageAuto() {
   const [isAnalyzing, setIsAnalyzingLocal] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
   const [motionState, setMotionState] = useState<string>("idle");
+  const [showPaywall, setShowPaywall] = useState(false);
+
+  // États coaching temps réel
+  const [coachingConfig, setCoachingConfig] = useState<RealtimeCoachingConfig>(() => {
+    const saved = localStorage.getItem('coaching_config');
+    return saved ? JSON.parse(saved) : {
+      enabled: false,
+      mode: 'visual' as const,
+      sensitivity: 'normal' as const,
+      focusAreas: [
+        { joint: 'elbow' as const, threshold: 15, priority: 'high' as const },
+        { joint: 'shoulder' as const, threshold: 15, priority: 'medium' as const }
+      ],
+      cooldownMs: 2000
+    };
+  });
+  const [currentFeedback, setCurrentFeedback] = useState<CoachingFeedback | null>(null);
+  const coachRef = useRef<RealtimeCoach | null>(null);
 
   const motionDetectorRef = useRef(
     createMotionDetector(calibration?.dominantHand || "right"),
   );
+
+  // Initialiser le coach et persister config
+  useEffect(() => {
+    coachRef.current = new RealtimeCoach(coachingConfig);
+  }, []);
+
+  useEffect(() => {
+    if (coachRef.current) {
+      coachRef.current.updateConfig(coachingConfig);
+    }
+    localStorage.setItem('coaching_config', JSON.stringify(coachingConfig));
+  }, [coachingConfig]);
 
   /**
    * Callback quand une pose est détectée
    */
   const handlePoseDetected = useCallback(
     async (pose: Pose) => {
+      // Coaching temps réel (même si pas ready)
+      if (coachRef.current && coachingConfig.enabled && !isCompleted) {
+        const feedback = coachRef.current.analyzePose(pose);
+        if (feedback) {
+          setCurrentFeedback(feedback);
+          // Clear feedback après 3s
+          setTimeout(() => setCurrentFeedback(null), 3000);
+        }
+      }
+
       if (!isReady || isAnalyzing || isCompleted) return;
 
       const detector = motionDetectorRef.current;
@@ -167,8 +213,17 @@ export function CapturePageAuto() {
 
   /**
    * Démarre la détection automatique
+   * Vérifie d'abord la limite de sessions mensuelles
    */
-  const startAutoDetection = () => {
+  const startAutoDetection = async () => {
+    // Vérifier la limite de sessions mensuelles
+    const access = await checkAndTrackFeature('sessions_per_month');
+    
+    if (!access.hasAccess) {
+      setShowPaywall(true);
+      return;
+    }
+    
     setIsReady(true);
     motionDetectorRef.current.resetManually();
   };
@@ -256,12 +311,28 @@ export function CapturePageAuto() {
       </header>
 
       <main className="container mx-auto px-4 py-6 max-w-4xl space-y-6">
-        {/* Caméra */}
-        <CameraCapture
-          onPoseDetected={handlePoseDetected}
-          showSkeleton={true}
-          isRecording={isReady && !isCompleted}
-        />
+        {/* Caméra avec overlay coaching */}
+        <div className="relative">
+          <CameraCapture
+            onPoseDetected={handlePoseDetected}
+            showSkeleton={true}
+            isRecording={isReady && !isCompleted}
+          />
+          
+          {/* Overlay coaching par-dessus la caméra */}
+          <CoachingOverlay
+            feedback={currentFeedback}
+            show={coachingConfig.enabled && (isReady || currentFeedback !== null)}
+          />
+        </div>
+
+        {/* Panneau coaching settings */}
+        {!isReady && (
+          <CoachingSettings
+            config={coachingConfig}
+            onChange={setCoachingConfig}
+          />
+        )}
 
         {/* État actuel */}
         <Card className={`${getStatusColor()} transition-colors glass-card`}>
@@ -386,6 +457,14 @@ export function CapturePageAuto() {
           )}
         </div>
       </main>
+
+      {/* Paywall Modal */}
+      <PaywallModal
+        isOpen={showPaywall}
+        featureName="Sessions d'entraînement"
+        featureDescription="Vous avez atteint la limite de sessions pour ce mois. Passez à Pro pour des sessions illimitées !"
+        onClose={() => setShowPaywall(false)}
+      />
     </div>
   );
 }

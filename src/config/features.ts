@@ -6,7 +6,6 @@
 
 import {
   SubscriptionTier,
-  TierLimits,
   SubscriptionTierDetails,
 } from "@/types/subscription";
 

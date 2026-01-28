@@ -3,7 +3,7 @@
  * S'affiche quand l'utilisateur tente d'accéder à une fonctionnalité premium
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Lock, X, Sparkles } from "lucide-react";
 import {
   Dialog,
@@ -15,9 +15,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { PricingCard } from "./PricingCard";
 import { SUBSCRIPTION_TIERS } from "@/config/features";
-import { createPayPalSubscription } from "@/services/subscription";
+import { createPayPalSubscription, getUserTier } from "@/services/subscription";
 import type { SubscriptionTier } from "@/types/subscription";
-import { useAppStore } from "@/store/useAppStore";
 
 interface PaywallModalProps {
   isOpen: boolean;
@@ -44,9 +43,11 @@ export function PaywallModal({
   const [selectedTier, setSelectedTier] = useState<SubscriptionTier | null>(
     null,
   );
-  const currentTier = useAppStore(
-    (state) => state.subscription?.tier || "free",
-  );
+  const [currentTier, setCurrentTier] = useState<SubscriptionTier>("free");
+
+  useEffect(() => {
+    getUserTier().then(setCurrentTier);
+  }, []);
 
   const handleSelectTier = async (tierId: SubscriptionTier) => {
     if (tierId === "free" || tierId === currentTier) {

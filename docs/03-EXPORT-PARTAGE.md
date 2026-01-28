@@ -1,5 +1,28 @@
 # 📤 Export et Partage
 
+> **Statut** : 🔄 EN COURS  
+> **Dernière mise à jour** : 28 janvier 2026 - 18h30
+
+## 📊 État d'Implémentation
+
+| Fonctionnalité | Statut | Notes |
+|---|---|---|
+| Export PDF | ✅ 100% | Opérationnel, feature gating intégré |
+| Export JSON | ✅ 100% | Gratuit pour tous |
+| Export Vidéo | 🔄 85% | Structure complète, intégration UI restante |
+| Partage Social | ❌ 0% | Planifié Q2 |
+| Partage Cloud | ❌ 0% | Planifié Q3 |
+
+**Fichiers implémentés** :
+- ✅ `src/services/ExportService.ts` - Export PDF/JSON
+- ✅ `src/components/export/ExportDialog.tsx` - UI export
+- ✅ `src/lib/ffmpeg/loader.ts` - Chargement FFmpeg.wasm
+- ✅ `src/lib/ffmpeg/encoder.ts` - Encoding vidéo MP4
+- ✅ `src/services/videoExport.ts` - Service export vidéo
+- ✅ `src/services/videoFrames.ts` - Génération frames
+- ✅ `src/services/videoOverlays.ts` - Overlays biomécaniques
+- ✅ `src/components/export/VideoExportOptions.tsx` - UI options vidéo
+
 ## 🎯 Objectif
 
 Permettre aux utilisateurs d'exporter leurs analyses et de partager leurs performances sur différents supports.

@@ -286,6 +286,30 @@ export async function checkAndTrackFeature(
 }
 
 /**
+ * Obtenir l'usage et la limite d'une feature spécifique
+ * Utilisé pour afficher les compteurs dans l'UI
+ * @param featureId - ID de la fonctionnalité
+ * @returns Objet avec usage actuel et limite
+ */
+export async function getFeatureUsage(
+  featureId: keyof typeof FEATURE_LIMITS,
+): Promise<{ usage: number; limit: number }> {
+  try {
+    const tier = await getUserTier();
+    const limit = getFeatureLimit(featureId, tier);
+    const usage = await getMonthlyUsage(featureId);
+
+    return {
+      usage,
+      limit: limit === -1 ? Infinity : limit,
+    };
+  } catch (error) {
+    console.error('Erreur getFeatureUsage:', error);
+    return { usage: 0, limit: 0 };
+  }
+}
+
+/**
  * Obtenir les statistiques d'usage pour affichage UI
  * Retourne toutes les features avec leur usage actuel, limite et metadata
  */

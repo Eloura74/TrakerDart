@@ -26,8 +26,8 @@ interface AppHeaderProps {
 }
 
 export function AppHeader({
-  showActions = true,
-  onNewSession,
+  showActions: _showActions = true,
+  onNewSession: _onNewSession,
 }: AppHeaderProps) {
   const [tier, setTier] = useState<SubscriptionTier>("free");
   const [userEmail, setUserEmail] = useState<string>("");

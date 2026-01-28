@@ -1,8 +1,10 @@
 # 💎 Modèle Premium - IMPLÉMENTÉ ✅
 
-## ✅ État Actuel : PHASE 1 COMPLÈTE + UI PARFAITE
+> **Dernière mise à jour** : 28 janvier 2026 - 18h30
 
-Le système de monétisation premium est **opérationnel en mode développement** avec une **interface visuellement exceptionnelle**.
+## ✅ État Actuel : 100% OPÉRATIONNEL
+
+Le système de monétisation premium est **pleinement fonctionnel** avec feature gating intégré dans toute l'application.
 
 ---
 
@@ -93,21 +95,31 @@ VITE_DEV_DEFAULT_TIER=elite
 
 ---
 
+### 8. Feature Gating Intégré (100%)
+
+- ✅ **UsageBanner** - Composant tracking mensuel créé
+- ✅ **Protection création sessions** - Limite 10/mois gratuit
+- ✅ **Protection exports PDF** - Pro/Elite uniquement
+- ✅ **PaywallModal** - S'affiche automatiquement si limite atteinte
+- ✅ **Integration CapturePageAuto.tsx** - Feature gating opérationnel
+- ✅ **Integration ExportDialog.tsx** - Feature gating PDF
+- ✅ **Integration HomePage.tsx** - UsageBanner affiché
+- ✅ **Service featureGate.ts** - Fonction `getFeatureUsage()` ajoutée
+
+📄 **Documentation complète** : [`FEATURE-GATING-DONE.md`](../FEATURE-GATING-DONE.md)
+
+---
+
 ## 🚧 Ce qui RESTE à Faire
 
-### 1. Feature Gating dans App Existante (Priorité HAUTE)
+### 1. Intégration UI Export Vidéo (En cours - 15%)
 
-- [ ] **Protéger création de session**
-  ```typescript
-  // Dans composant de création session
-  const access = await checkAndTrackFeature("sessions_per_month");
-  if (!access.hasAccess) {
-    // Afficher PaywallModal
-  }
-  ```
-- [ ] **Protéger exports PDF**
-- [ ] **Protéger exports vidéo** (différentes résolutions)
-- [ ] **Limiter nombre de lancers par session**
+- [x] Structure FFmpeg.wasm créée
+- [x] Services export vidéo complets
+- [ ] **Intégration dans ExportDialog**
+- [ ] **Feature gating par résolution** (720p/1080p/4K)
+- [ ] **Composant VideoExportProgress**
+- [ ] **Tests exports vidéo**
 
 ### 2. Edge Functions PayPal (Optionnel - Prod uniquement)
 

@@ -11,6 +11,7 @@ import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { DashboardWidget } from "@/components/dashboard/DashboardWidget";
 import { DashboardEditor } from "@/components/dashboard/DashboardEditor";
 import { AppHeader } from "@/components/layout/AppHeader";
+import { UsageBanner } from "@/components/subscription/UsageBanner";
 import { useState, useEffect } from "react";
 
 export function HomePage() {
@@ -224,6 +225,11 @@ export function HomePage() {
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-6">
+        {/* Usage Banner (limites premium) */}
+        <div className="mb-6">
+          <UsageBanner />
+        </div>
+
         {/* Welcome Banner if no sessions */}
         {(!sessions || sessions.length === 0) && (
           <Card

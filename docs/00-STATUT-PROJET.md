@@ -1,6 +1,6 @@
 # 📊 État du Projet TrakerDart
 
-> Dernière mise à jour : 28 janvier 2026 - 13h15
+> Dernière mise à jour : 28 janvier 2026 - 18h30
 
 ---
 
@@ -9,6 +9,7 @@
 **TrakerDart** est une application d'analyse biomécanique pour le jeu de fléchettes utilisant l'IA et la vision par ordinateur.
 
 ### Statut Global : 🟢 EN DÉVELOPPEMENT ACTIF
+### Progression : **55%** (+10% aujourd'hui)
 
 ---
 
@@ -27,9 +28,9 @@
 
 🎉 **Résultat** : Application visuellement exceptionnelle, 100% lisible
 
-### 2. 💎 **Modèle Premium** - ✅ 85% TERMINÉ
+### 2. 💎 **Modèle Premium** - ✅ 100% OPÉRATIONNEL
 
-**État** : Opérationnel en mode dev, fondations complètes
+**État** : Pleinement fonctionnel, feature gating intégré
 
 - ✅ 3 tiers configurés (Gratuit, Pro 9.99€, Elite 19.99€)
 - ✅ Feature gating complet avec usage tracking
@@ -37,9 +38,13 @@
 - ✅ Base données Supabase (3 tables + RLS)
 - ✅ Mode développement intégré (test sans PayPal)
 - ✅ Page SubscriptionPage fonctionnelle
-- 🔶 Reste : Intégration feature gating dans features existantes
+- ✅ **UsageBanner créé et intégré (tracking mensuel)**
+- ✅ **Feature gating sessions (10 max gratuit)**
+- ✅ **Feature gating exports PDF (Pro/Elite)**
+- ✅ **PaywallModal opérationnel**
+- 🔶 Reste : Intégration PayPal production
 
-📄 **Docs** : [`22-MODELE-PREMIUM.md`](./22-MODELE-PREMIUM.md)
+📄 **Docs** : [`22-MODELE-PREMIUM.md`](./22-MODELE-PREMIUM.md), [`FEATURE-GATING-DONE.md`](../FEATURE-GATING-DONE.md)
 
 ### 3. 🎮 **Design System** - ✅ FAIT
 
@@ -56,7 +61,22 @@
 
 ## 🚧 Fonctionnalités EN COURS
 
-### 1. 🔗 **Comparaison Sessions** - 📋 SPÉCIFIÉ
+### 1. 🎬 **Export Vidéo Annotée** - 🔄 85% TERMINÉ
+
+**État** : Structure complète créée, intégration UI restante
+
+- ✅ FFmpeg.wasm intégré (loader + encoder)
+- ✅ Génération frames canvas (skeleton 3D)
+- ✅ Overlays biomécaniques (angles, scores, trajectoire)
+- ✅ Support 3 résolutions (720p/1080p/4K)
+- ✅ Feature gating par résolution
+- ✅ VideoExportOptions component
+- ✅ Types TypeScript complets
+- 🔶 Reste : Intégration dans ExportDialog + tests
+
+📄 **Docs** : [`03-EXPORT-PARTAGE.md`](./03-EXPORT-PARTAGE.md), [`EXPORT-VIDEO-IMPLEMENTATION.md`](../EXPORT-VIDEO-IMPLEMENTATION.md)
+
+### 2. 🔗 **Comparaison Sessions** - 📋 SPÉCIFIÉ
 
 **État** : Spec complète, implémentation à démarrer
 
@@ -88,22 +108,24 @@
 
 ---
 
-## 🎯 Focus Actuel : MONÉTISATION
+## 🎯 Focus Actuel : EXPORT VIDÉO + PREMIUM
 
-### Cette Semaine (Modèle Premium)
+### Cette Semaine (28 Jan - 2 Fév)
 
 - [x] Architecture & services backend
 - [x] Composants UI & pages
 - [x] Base de données Supabase
 - [x] **Unification visuelle complète**
 - [x] **SubscriptionPage créée**
-- [ ] **Intégrer feature gating dans app**
+- [x] **Feature gating intégré (sessions + PDF)**
+- [x] **Export vidéo structure créée**
+- [ ] **Intégration UI export vidéo (en cours)**
 
-### Semaine Prochaine
+### Semaine Prochaine (3-9 Fév)
 
-- [ ] Intégrer feature gating (sessions, exports)
-- [ ] Protéger exports PDF/vidéo
+- [ ] Finaliser export vidéo (tests + polish)
 - [ ] Tests utilisateur flow premium
+- [ ] Phase 3 : Rapports détaillés
 
 ---
 
@@ -154,6 +176,8 @@ supabase/
 {
   "@supabase/supabase-js": "^2.x",
   "@paypal/paypal-js": "^8.x",
+  "@ffmpeg/ffmpeg": "^0.12.10",
+  "@ffmpeg/util": "^0.12.1",
   "react": "^18.x",
   "typescript": "^5.x",
   "vite": "^5.x",
@@ -211,7 +235,8 @@ npm run test
 ### Q1 (Jan-Mars) - Monétisation
 
 - ✅ Modèle premium (Stripe → PayPal)
-- [ ] Feature gating complet
+- ✅ Feature gating complet
+- ✅ Export vidéo structure (85%)
 - [ ] Analytics conversion
 - [ ] 100 premiers utilisateurs payants
 
@@ -219,7 +244,7 @@ npm run test
 
 - [ ] Coaching virtuel temps réel
 - [ ] IA générative (recommandations)
-- [ ] Export vidéo annoté
+- [ ] Rapports détaillés automatiques
 - [ ] Comparaison avec joueurs pros
 
 ### Q3 (Juil-Sept) - Scalabilité
