@@ -209,7 +209,7 @@ export function CapturePage() {
   );
 
   return (
-    <div className="min-h-screen app-bg-gradient text-white">
+    <div className="min-h-screen app-bg-gradient pb-20 text-white overflow-hidden">
       {/* Header Standard */}
       <AppHeader />
 

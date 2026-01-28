@@ -176,7 +176,12 @@ function App() {
 
   return (
     <ErrorBoundary>
-      <div className="app dark text-foreground">
+      <div className="app dark text-foreground relative">
+        {/* Background Grid Global - Sur toutes les pages */}
+        <div className="fixed inset-0 z-0 pointer-events-none opacity-20">
+          <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:40px_40px]" />
+        </div>
+
         <Suspense
           fallback={
             <div className="min-h-screen bg-black flex items-center justify-center">

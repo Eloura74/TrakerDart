@@ -278,7 +278,7 @@ export function CapturePageAuto() {
   };
 
   return (
-    <div className="min-h-screen app-bg-gradient pb-20">
+    <div className="min-h-screen app-bg-gradient pb-20 overflow-hidden">
       {/* Header unifié */}
       <AppHeader />
 
