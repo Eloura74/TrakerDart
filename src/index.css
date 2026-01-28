@@ -176,3 +176,39 @@ canvas {
   transform: translateZ(0);
   will-change: transform;
 }
+
+/* BLOQUER DRAG SUR MOBILE - react-grid-layout */
+@media (max-width: 768px) {
+  .react-grid-layout {
+    touch-action: pan-y !important;
+    -webkit-user-drag: none !important;
+    user-select: none !important;
+  }
+  
+  .react-grid-item {
+    touch-action: pan-y !important;
+    -webkit-user-drag: none !important;
+    user-select: none !important;
+    pointer-events: auto !important;
+    position: static !important;
+  }
+  
+  .react-grid-item.react-draggable {
+    cursor: default !important;
+  }
+  
+  .react-grid-item > .react-resizable-handle {
+    display: none !important;
+  }
+  
+  /* Empêcher complètement le drag */
+  .react-grid-item.react-grid-placeholder {
+    display: none !important;
+  }
+  
+  .react-draggable,
+  .react-draggable-dragging {
+    transform: none !important;
+    -webkit-transform: none !important;
+  }
+}

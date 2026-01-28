@@ -91,7 +91,32 @@ export function DashboardLayout({
     }
   };
 
-  // Générer la mise en page à partir des widgets
+  // SUR MOBILE : Grille CSS simple (SANS react-grid-layout)
+  if (isMobile) {
+    return (
+      <div className="w-full space-y-4" style={{ touchAction: 'pan-y' }}>
+        {widgets.map((widget) => (
+          <div
+            key={widget.id}
+            className="w-full"
+            onClick={() => onWidgetClick?.(widget.id)}
+          >
+            <WidgetRenderer
+              widget={widget}
+              editMode={false}
+              onRemove={onWidgetRemove}
+              onEdit={onWidgetEdit}
+              onClick={onWidgetClick}
+            >
+              {renderWidgetContent(widget)}
+            </WidgetRenderer>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // DESKTOP : react-grid-layout normal
   const layout = widgets.map((w) => ({
     i: w.id,
     x: w.position.x,
@@ -101,7 +126,7 @@ export function DashboardLayout({
   }));
 
   return (
-    <div className="w-full" style={{ touchAction: 'pan-y', overflowY: 'auto' }}>
+    <div className="w-full">
       <ResponsiveGridLayout
         className="layout"
         layouts={{ lg: layout, md: layout, sm: layout }}
