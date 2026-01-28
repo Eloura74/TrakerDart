@@ -14,14 +14,14 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-cyan-500/10 text-cyan-400 border border-cyan-500/50 hover:bg-cyan-500/20 hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:border-cyan-400 backdrop-blur-sm",
+          "bg-cyan-500 text-white hover:bg-cyan-400 hover:shadow-[0_0_30px_rgba(6,182,212,0.6)] font-bold",
         destructive:
           "bg-red-500/10 text-red-400 border border-red-500/50 hover:bg-red-500/20 hover:shadow-[0_0_20px_rgba(239,68,68,0.4)] hover:border-red-400 backdrop-blur-sm",
         outline:
-          "border border-white/10 bg-white/5 hover:bg-white/10 hover:text-white hover:border-white/20 backdrop-blur-sm",
+          "border border-white/20 bg-white/5 text-white hover:bg-white/10 hover:border-white/40 backdrop-blur-sm",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-cyan-500/10 hover:text-cyan-400",
+        ghost: "text-gray-300 hover:bg-cyan-500/10 hover:text-cyan-400",
         link: "text-cyan-400 underline-offset-4 hover:underline",
         success:
           "bg-green-500/10 text-green-400 border border-green-500/50 hover:bg-green-500/20 hover:shadow-[0_0_20px_rgba(34,197,94,0.4)]",

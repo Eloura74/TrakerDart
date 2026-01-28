@@ -3,19 +3,14 @@
  * Point d'entrée principal avec navigation vers les fonctionnalités
  */
 
-import {
-  Target,
-  History,
-  PlayCircle,
-  Trophy,
-  Activity,
-  LayoutDashboard,
-} from "lucide-react";
+import { Target, History, PlayCircle, Trophy, Activity } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAppStore } from "@/store/useAppStore";
 import { DashboardLayout } from "@/components/dashboard/DashboardLayout";
 import { DashboardWidget } from "@/components/dashboard/DashboardWidget";
+import { DashboardEditor } from "@/components/dashboard/DashboardEditor";
+import { AppHeader } from "@/components/layout/AppHeader";
 import { useState, useEffect } from "react";
 
 export function HomePage() {
@@ -178,52 +173,54 @@ export function HomePage() {
     }
   };
 
-  const handleLayoutChange = (layout: any) => {
+  const handleLayoutChange = (layout: unknown) => {
     // Save layout to local storage or store
     console.log("Layout changed:", layout);
   };
 
+  const handleAddWidget = (newWidget: Omit<DashboardWidget, "id">) => {
+    const id = `widget-${Date.now()}`;
+    setWidgets([...widgets, { ...newWidget, id }]);
+  };
+
+  const handleRemoveWidget = (id: string) => {
+    setWidgets(widgets.filter((w) => w.id !== id));
+  };
+
+  const handleSaveLayout = () => {
+    // Persist layout
+    setIsEditMode(false);
+    // TODO: Save to store/DB
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black">
-      {/* Header */}
-      <header className="border-b border-white/10 sticky top-0 z-50 bg-black/50 backdrop-blur-md">
-        <div className="container mx-auto px-4 py-4">
+      {/* Header Moderne */}
+      <AppHeader />
+
+      {/* Barre d'actions */}
+      <div className="border-b border-white/10 bg-black/30 backdrop-blur-sm">
+        <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Target className="h-8 w-8 text-primary" />
-              <div>
-                <h1 className="text-xl font-bold">TrakerDart</h1>
-                <p className="text-xs text-muted-foreground hidden sm:block">
-                  Analyse biomécanique de lancer
-                </p>
-              </div>
-            </div>
             <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsEditMode(!isEditMode)}
-                className={
-                  isEditMode
-                    ? "text-primary bg-primary/10"
-                    : "text-muted-foreground"
-                }
-              >
-                <LayoutDashboard className="h-4 w-4 mr-2" />
-                {isEditMode ? "Terminer" : "Personnaliser"}
-              </Button>
-              <Button
-                onClick={handleStartSession}
-                size="sm"
-                className="bg-primary hover:bg-primary/90"
-              >
-                <PlayCircle className="h-4 w-4 mr-2" />
-                <span className="hidden sm:inline">Nouvelle Session</span>
-              </Button>
+              <DashboardEditor
+                isEditable={isEditMode}
+                onToggleEdit={() => setIsEditMode(!isEditMode)}
+                onAddWidget={handleAddWidget}
+                onSaveLayout={handleSaveLayout}
+              />
             </div>
+            <Button
+              onClick={handleStartSession}
+              size="sm"
+              className="bg-gradient-to-r from-primary to-cyan-500 hover:from-primary/90 hover:to-cyan-500/90 shadow-lg shadow-primary/20"
+            >
+              <PlayCircle className="h-4 w-4 mr-2" />
+              Nouvelle Session
+            </Button>
           </div>
         </div>
-      </header>
+      </div>
 
       {/* Main Content */}
       <main className="container mx-auto px-4 py-6">
@@ -261,7 +258,7 @@ export function HomePage() {
         <DashboardLayout
           widgets={widgets}
           onLayoutChange={handleLayoutChange}
-          onWidgetRemove={(id) => console.log("Remove", id)}
+          onWidgetRemove={handleRemoveWidget}
           onWidgetEdit={(id) => console.log("Edit", id)}
           isEditable={isEditMode}
           onWidgetClick={handleWidgetClick}

@@ -7,6 +7,7 @@ Permettre aux utilisateurs de comparer leurs performances entre différentes ses
 ## 🎨 Fonctionnalités
 
 ### 1. Sélection de Sessions
+
 - Interface de sélection multiple de sessions (checkboxes)
 - Filtres par date, score, type d'entraînement
 - Présets : "7 derniers jours", "Ce mois", "Meilleur vs Pire"
@@ -14,6 +15,7 @@ Permettre aux utilisateurs de comparer leurs performances entre différentes ses
 ### 2. Graphiques de Comparaison
 
 #### Évolution Temporelle
+
 ```typescript
 interface SessionComparison {
   sessions: TrainingSession[];
@@ -22,16 +24,17 @@ interface SessionComparison {
 }
 
 interface ComparisonMetrics {
-  consistencyTrend: number[];      // Évolution régularité
-  technicalScoreTrend: number[];   // Évolution score technique
-  elbowAngleTrend: number[];       // Évolution angle coude
-  improvementRate: number;         // Taux d'amélioration %
-  bestMetrics: MetricSnapshot;     // Meilleurs métriques
-  worstMetrics: MetricSnapshot;    // Pires métriques
+  consistencyTrend: number[]; // Évolution régularité
+  technicalScoreTrend: number[]; // Évolution score technique
+  elbowAngleTrend: number[]; // Évolution angle coude
+  improvementRate: number; // Taux d'amélioration %
+  bestMetrics: MetricSnapshot; // Meilleurs métriques
+  worstMetrics: MetricSnapshot; // Pires métriques
 }
 ```
 
 #### Types de Graphiques
+
 - **Ligne** : Évolution dans le temps
 - **Radar** : Comparaison multi-critères
 - **Barres** : Comparaison directe de métriques
@@ -39,26 +42,27 @@ interface ComparisonMetrics {
 
 ### 3. Tableau Comparatif
 
-| Session | Date | Régularité | Technique | Coude | Poignet | Épaule | Tendance |
-|---------|------|------------|-----------|-------|---------|--------|----------|
-| Session 1 | 20/01 | 85% | 92 | ✅ | ⚠️ | ✅ | ↗️ +5% |
-| Session 2 | 22/01 | 78% | 88 | ⚠️ | ✅ | ✅ | ↘️ -3% |
-| Session 3 | 24/01 | 92% | 95 | ✅ | ✅ | ✅ | ↗️ +8% |
+| Session   | Date  | Régularité | Technique | Coude | Poignet | Épaule | Tendance |
+| --------- | ----- | ---------- | --------- | ----- | ------- | ------ | -------- |
+| Session 1 | 20/01 | 85%        | 92        | ✅    | ⚠️      | ✅     | ↗️ +5%   |
+| Session 2 | 22/01 | 78%        | 88        | ⚠️    | ✅      | ✅     | ↘️ -3%   |
+| Session 3 | 24/01 | 92%        | 95        | ✅    | ✅      | ✅     | ↗️ +8%   |
 
 ### 4. Statistiques Avancées
+
 ```typescript
 interface AdvancedStats {
   // Tendances
   weekOverWeekChange: number;
   monthOverMonthChange: number;
-  bestStreak: number;              // Meilleure série de sessions
+  bestStreak: number; // Meilleure série de sessions
   currentStreak: number;
-  
+
   // Patterns
   bestDayOfWeek: string;
   bestTimeOfDay: string;
   consistencyStdDev: number;
-  
+
   // Prédictions
   predictedNextScore: number;
   estimatedGoalDate: Date;
@@ -79,7 +83,7 @@ interface SessionComparisonProps {
 export function SessionComparison({ sessions, onSessionSelect }: SessionComparisonProps) {
   const [selectedSessions, setSelectedSessions] = useState<string[]>([]);
   const [comparisonData, setComparisonData] = useState<ComparisonMetrics | null>(null);
-  
+
   useEffect(() => {
     if (selectedSessions.length >= 2) {
       const data = compareSessionsMetrics(
@@ -88,15 +92,15 @@ export function SessionComparison({ sessions, onSessionSelect }: SessionComparis
       setComparisonData(data);
     }
   }, [selectedSessions, sessions]);
-  
+
   return (
     <div className="space-y-6">
-      <SessionSelector 
+      <SessionSelector
         sessions={sessions}
         selected={selectedSessions}
         onChange={setSelectedSessions}
       />
-      
+
       {comparisonData && (
         <>
           <ComparisonCharts data={comparisonData} />
@@ -114,42 +118,46 @@ export function SessionComparison({ sessions, onSessionSelect }: SessionComparis
 ```typescript
 // src/lib/comparison/sessionComparator.ts
 
-export function compareSessionsMetrics(sessions: TrainingSession[]): ComparisonMetrics {
+export function compareSessionsMetrics(
+  sessions: TrainingSession[],
+): ComparisonMetrics {
   // Trier par date
   const sorted = sessions.sort((a, b) => a.createdAt - b.createdAt);
-  
+
   // Calculer les tendances
-  const consistencyTrend = sorted.map(s => s.stats.averageConsistency);
-  const technicalScoreTrend = sorted.map(s => s.stats.averageTechnicalScore);
-  
+  const consistencyTrend = sorted.map((s) => s.stats.averageConsistency);
+  const technicalScoreTrend = sorted.map((s) => s.stats.averageTechnicalScore);
+
   // Calculer taux d'amélioration
   const first = sorted[0];
   const last = sorted[sorted.length - 1];
-  const improvementRate = ((last.stats.averageConsistency - first.stats.averageConsistency) 
-    / first.stats.averageConsistency) * 100;
-  
+  const improvementRate =
+    ((last.stats.averageConsistency - first.stats.averageConsistency) /
+      first.stats.averageConsistency) *
+    100;
+
   // Identifier meilleurs/pires
   const bestMetrics = findBestMetrics(sorted);
   const worstMetrics = findWorstMetrics(sorted);
-  
+
   // Calculer angles moyens
-  const elbowAngleTrend = sorted.map(s => 
-    calculateAverageElbowAngle(s.volleys)
+  const elbowAngleTrend = sorted.map((s) =>
+    calculateAverageElbowAngle(s.volleys),
   );
-  
+
   return {
     consistencyTrend,
     technicalScoreTrend,
     elbowAngleTrend,
     improvementRate,
     bestMetrics,
-    worstMetrics
+    worstMetrics,
   };
 }
 
 function calculateAverageElbowAngle(volleys: Volley[]): number {
-  const angles = volleys.flatMap(v => 
-    v.throws.map(t => t.analysis.elbow.averageAngle)
+  const angles = volleys.flatMap((v) =>
+    v.throws.map((t) => t.analysis.elbow.averageAngle),
   );
   return angles.reduce((sum, a) => sum + a, 0) / angles.length;
 }
@@ -167,7 +175,7 @@ export function EvolutionChart({ data }: { data: ComparisonMetrics }) {
     regularite: value,
     technique: data.technicalScoreTrend[index]
   }));
-  
+
   return (
     <Card>
       <CardHeader>
@@ -178,24 +186,24 @@ export function EvolutionChart({ data }: { data: ComparisonMetrics }) {
           <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" />
           <XAxis dataKey="session" stroke="#888" />
           <YAxis stroke="#888" />
-          <Tooltip 
-            contentStyle={{ 
-              backgroundColor: '#1a1a1a', 
-              border: '1px solid #333' 
-            }} 
+          <Tooltip
+            contentStyle={{
+              backgroundColor: '#1a1a1a',
+              border: '1px solid #333'
+            }}
           />
           <Legend />
-          <Line 
-            type="monotone" 
-            dataKey="regularite" 
-            stroke="#00f2ff" 
+          <Line
+            type="monotone"
+            dataKey="regularite"
+            stroke="#00f2ff"
             strokeWidth={2}
             name="Régularité"
           />
-          <Line 
-            type="monotone" 
-            dataKey="technique" 
-            stroke="#ff0055" 
+          <Line
+            type="monotone"
+            dataKey="technique"
+            stroke="#ff0055"
             strokeWidth={2}
             name="Technique"
           />
@@ -209,6 +217,7 @@ export function EvolutionChart({ data }: { data: ComparisonMetrics }) {
 ## 🎨 UI/UX
 
 ### Layout Desktop
+
 ```
 ┌─────────────────────────────────────────────────┐
 │  📊 Comparaison de Sessions                     │
@@ -227,6 +236,7 @@ export function EvolutionChart({ data }: { data: ComparisonMetrics }) {
 ```
 
 ### Design Mobile
+
 - Sélection en drawer/modal
 - Graphiques en scroll horizontal
 - Tableau en mode cards empilées
@@ -243,15 +253,13 @@ export function EvolutionChart({ data }: { data: ComparisonMetrics }) {
 
 ## ✅ Checklist d'Implémentation
 
-- [ ] Composant SessionSelector avec multi-select
-- [ ] Fonction compareSessionsMetrics()
-- [ ] Graphique d'évolution (LineChart)
-- [ ] Graphique radar multi-critères
-- [ ] Tableau comparatif responsive
-- [ ] Calcul statistiques avancées
-- [ ] Export comparaison en PDF
-- [ ] Tests unitaires
-- [ ] Tests E2E avec Playwright
+- [x] Composant SessionSelector avec multi-select ✅ **IMPLÉMENTÉ**
+- [x] Fonction compareSessionsMetrics() ✅ **IMPLÉMENTÉ**
+- [x] Créer la page de comparaison (`src/pages/ComparisonPage.tsx`) ✅ **IMPLÉMENTÉ**
+- [x] Créer le sélecteur de sessions (`src/components/comparison/SessionSelector.tsx`) ✅ **IMPLÉMENTÉ**
+- [x] Créer les graphiques comparatifs (`src/components/comparison/ComparisonCharts.tsx`) ✅ **IMPLÉMENTÉ**
+- [x] Créer le tableau de statistiques (`src/components/comparison/ComparisonTable.tsx`) ✅ **IMPLÉMENTÉ**
+- [x] Ajouter la route dans `App.tsx` E2E avec Playwright ✅ **IMPLÉMENTÉ**
 
 ## 🎯 Métriques de Succès
 

@@ -10,10 +10,15 @@ import { useAppStore } from "@/store/useAppStore";
 import { HomePage } from "./pages/HomePage";
 import { CapturePageAuto } from "./pages/CapturePageAuto";
 import { AnalysisPage } from "./pages/AnalysisPage";
+import { ComparisonPage } from "./pages/ComparisonPage";
 import { HistoryPage } from "./pages/HistoryPage";
 import { CalibrationPage } from "./pages/CalibrationPage";
 import { LoginPage } from "./pages/auth/LoginPage";
 import { RegisterPage } from "./pages/auth/RegisterPage";
+import { PricingPage } from "./pages/PricingPage";
+import { DevPage } from "./pages/DevPage";
+import { SubscriptionPage } from "./pages/SubscriptionPage";
+import { SettingsPage } from "./pages/SettingsPage";
 import { Loader2 } from "lucide-react";
 import "./index.css";
 
@@ -115,6 +120,21 @@ function App() {
       case "history":
         return <HistoryPage />;
 
+      case "comparison":
+        return <ComparisonPage />;
+
+      case "pricing":
+        return <PricingPage />;
+
+      case "dev":
+        return <DevPage />;
+
+      case "subscription":
+        return <SubscriptionPage />;
+
+      case "settings":
+        return <SettingsPage />;
+
       default:
         return (
           <div className="min-h-screen bg-background flex items-center justify-center">
@@ -135,7 +155,7 @@ function App() {
     }
   };
 
-  return <div className="app">{renderPage()}</div>;
+  return <div className="app dark text-foreground">{renderPage()}</div>;
 }
 
 export default App;

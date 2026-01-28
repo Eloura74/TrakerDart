@@ -15,12 +15,7 @@ import {
   Maximize,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { CameraCapture } from "@/components/camera/CameraCapture";
@@ -60,7 +55,10 @@ export function CapturePage() {
   const startCountdown = useCallback(() => {
     // Vérifier que l'état est bien "idle" avant de démarrer
     if (recordingState !== "idle") {
-      console.warn("Tentative de démarrage alors que l'état n'est pas idle:", recordingState);
+      console.warn(
+        "Tentative de démarrage alors que l'état n'est pas idle:",
+        recordingState,
+      );
       return;
     }
 
@@ -81,7 +79,9 @@ export function CapturePage() {
             setElapsedTime((t) => t + 100);
           }, 100);
 
-          console.log(`🎯 Démarrage enregistrement lancer ${currentThrowIndex + 1}/3`);
+          console.log(
+            `🎯 Démarrage enregistrement lancer ${currentThrowIndex + 1}/3`,
+          );
           return 0;
         }
         return prev - 1;
@@ -136,7 +136,7 @@ export function CapturePage() {
     } finally {
       setAnalyzing(false);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentThrowIndex, elapsedTime, calibration, setAnalyzing]);
 
   /**
@@ -220,7 +220,7 @@ export function CapturePage() {
     ((currentThrowIndex + (recordingState === "completed" ? 1 : 0)) / 3) * 100;
 
   return (
-    <div className="min-h-screen bg-[#050505] pb-20 text-white overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black pb-20 text-white overflow-hidden">
       {/* Background Grid */}
       <div className="fixed inset-0 z-0 pointer-events-none opacity-20">
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:40px_40px]" />
@@ -357,7 +357,7 @@ export function CapturePage() {
           {/* Colonne Droite - Stats Temps Réel */}
           <div className="lg:col-span-4 space-y-4">
             {/* État Actuel */}
-            <Card className="bg-black/40 border-white/10 backdrop-blur-md">
+            <Card className="border-white/10 bg-black/40 backdrop-blur-sm">
               <CardHeader className="pb-2">
                 <CardTitle className="text-xs font-mono text-gray-400 uppercase tracking-widest">
                   Statut Système
