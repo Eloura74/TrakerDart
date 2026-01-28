@@ -98,7 +98,7 @@ export function DashboardLayout({
   }));
 
   return (
-    <div className="w-full">
+    <div className="w-full" style={{ touchAction: isEditable ? 'none' : 'pan-y' }}>
       <ResponsiveGridLayout
         className="layout"
         layouts={{ lg: layout, md: layout, sm: layout }}
@@ -108,9 +108,9 @@ export function DashboardLayout({
         onLayoutChange={(layout: Layout[]) => onLayoutChange(layout)}
         isDraggable={isEditable}
         isResizable={isEditable}
-        draggableHandle=".drag-handle"
         margin={[16, 16]}
         containerPadding={[0, 0]}
+        style={{ touchAction: isEditable ? 'none' : 'auto' }}
       >
         {widgets.map((widget) => (
           <div key={widget.id}>

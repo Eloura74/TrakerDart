@@ -58,11 +58,12 @@ export function DashboardEditor({
   };
 
   return (
-    <div className="flex items-center gap-2 mb-4">
+    <div className="flex items-center gap-2">
       <Button
         variant={isEditable ? "destructive" : "outline"}
         onClick={onToggleEdit}
         className="gap-2"
+        size="sm"
       >
         {isEditable ? (
           <>

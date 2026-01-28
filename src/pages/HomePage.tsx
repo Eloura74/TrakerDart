@@ -16,6 +16,7 @@ import { useState, useEffect } from "react";
 
 export function HomePage() {
   const { startSession, sessions } = useAppStore();
+  // FORCER mode édition désactivé par défaut
   const [isEditMode, setIsEditMode] = useState(false);
   const [widgets, setWidgets] = useState<DashboardWidget[]>([
     {
