@@ -19,6 +19,9 @@ import { PricingPage } from "./pages/PricingPage";
 import { DevPage } from "./pages/DevPage";
 import { SubscriptionPage } from "./pages/SubscriptionPage";
 import { SettingsPage } from "./pages/SettingsPage";
+import { AISettingsPage } from "./pages/AISettingsPage";
+import { AIChatPage } from "./pages/AIChatPage";
+import { AITrainingPlanPage } from "./pages/AITrainingPlanPage";
 import { Loader2 } from "lucide-react";
 import "./index.css";
 
@@ -134,6 +137,15 @@ function App() {
 
       case "settings":
         return <SettingsPage />;
+
+      case "ai-settings":
+        return <AISettingsPage />;
+
+      case "ai-chat":
+        return <AIChatPage />;
+
+      case "ai-training":
+        return <AITrainingPlanPage />;
 
       default:
         return (

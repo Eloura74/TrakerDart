@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect } from "react";
-import { Target, Crown, Settings, LogOut, CreditCard } from "lucide-react";
+import { Target, Crown, Settings, LogOut, CreditCard, Sparkles, MessageSquare, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SubscriptionBadge } from "@/components/subscription/SubscriptionBadge";
 import { getUserTier } from "@/services/subscription";
@@ -143,6 +143,39 @@ export function AppHeader({
                 >
                   <Settings className="mr-2 h-4 w-4" />
                   <span>Paramètres</span>
+                </DropdownMenuItem>
+
+                <DropdownMenuSeparator className="bg-white/10" />
+
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex items-center gap-2 text-xs text-gray-400">
+                    <Sparkles className="h-3 w-3" />
+                    <span>Assistant IA</span>
+                  </div>
+                </DropdownMenuLabel>
+
+                <DropdownMenuItem
+                  onClick={() => (window.location.hash = "#/ai-chat")}
+                  className="cursor-pointer hover:bg-white/5 text-white"
+                >
+                  <MessageSquare className="mr-2 h-4 w-4 text-primary" />
+                  <span>Chat Coach IA</span>
+                </DropdownMenuItem>
+
+                <DropdownMenuItem
+                  onClick={() => (window.location.hash = "#/ai-training")}
+                  className="cursor-pointer hover:bg-white/5 text-white"
+                >
+                  <Calendar className="mr-2 h-4 w-4 text-primary" />
+                  <span>Plan d'Entraînement</span>
+                </DropdownMenuItem>
+
+                <DropdownMenuItem
+                  onClick={() => (window.location.hash = "#/ai-settings")}
+                  className="cursor-pointer hover:bg-white/5 text-white"
+                >
+                  <Settings className="mr-2 h-4 w-4 text-primary" />
+                  <span>Config IA</span>
                 </DropdownMenuItem>
 
                 <DropdownMenuSeparator className="bg-white/10" />
