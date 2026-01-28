@@ -44,6 +44,11 @@ export function DashboardEditor({
     w: 2,
     h: 1,
   });
+  
+  // Cacher sur mobile
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  
+  if (isMobile) return null;
 
   const handleAdd = () => {
     onAddWidget({

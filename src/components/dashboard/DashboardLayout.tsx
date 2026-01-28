@@ -59,6 +59,9 @@ export function DashboardLayout({
   onWidgetClick,
   isEditable,
 }: DashboardLayoutProps) {
+  // BLOQUER drag sur mobile COMPLÈTEMENT
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  
   const renderWidgetContent = (widget: DashboardWidget) => {
     switch (widget.type) {
       case "stat":
@@ -98,7 +101,7 @@ export function DashboardLayout({
   }));
 
   return (
-    <div className="w-full" style={{ touchAction: isEditable ? 'none' : 'pan-y' }}>
+    <div className="w-full" style={{ touchAction: 'pan-y', overflowY: 'auto' }}>
       <ResponsiveGridLayout
         className="layout"
         layouts={{ lg: layout, md: layout, sm: layout }}
@@ -106,11 +109,11 @@ export function DashboardLayout({
         cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
         rowHeight={100}
         onLayoutChange={(layout: Layout[]) => onLayoutChange(layout)}
-        isDraggable={isEditable}
-        isResizable={isEditable}
+        isDraggable={!isMobile && isEditable}
+        isResizable={!isMobile && isEditable}
+        static={isMobile}
         margin={[16, 16]}
         containerPadding={[0, 0]}
-        style={{ touchAction: isEditable ? 'none' : 'auto' }}
       >
         {widgets.map((widget) => (
           <div key={widget.id}>
