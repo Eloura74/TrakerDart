@@ -3,28 +3,30 @@
  * Gère le routing et la structure globale
  */
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import { useAppStore } from "@/store/useAppStore";
-import { HomePage } from "./pages/HomePage";
-import { CapturePageAuto } from "./pages/CapturePageAuto";
-import { AnalysisPage } from "./pages/AnalysisPage";
-import { ComparisonPage } from "./pages/ComparisonPage";
-import { HistoryPage } from "./pages/HistoryPage";
-import { CalibrationPage } from "./pages/CalibrationPage";
-import { LoginPage } from "./pages/auth/LoginPage";
-import { RegisterPage } from "./pages/auth/RegisterPage";
-import { PricingPage } from "./pages/PricingPage";
-import { DevPage } from "./pages/DevPage";
-import { SubscriptionPage } from "./pages/SubscriptionPage";
-import { SettingsPage } from "./pages/SettingsPage";
-import { AISettingsPage } from "./pages/AISettingsPage";
-import { AIChatPage } from "./pages/AIChatPage";
-import { AITrainingPlanPage } from "./pages/AITrainingPlanPage";
-import { ArucoCalibrationPage } from "./pages/ArucoCalibrationPage";
 import { Loader2 } from "lucide-react";
 import "./index.css";
+
+// Lazy loading des pages pour optimiser le bundle initial
+const HomePage = lazy(() => import("./pages/HomePage").then(m => ({ default: m.HomePage })));
+const CapturePageAuto = lazy(() => import("./pages/CapturePageAuto").then(m => ({ default: m.CapturePageAuto })));
+const AnalysisPage = lazy(() => import("./pages/AnalysisPage").then(m => ({ default: m.AnalysisPage })));
+const ComparisonPage = lazy(() => import("./pages/ComparisonPage").then(m => ({ default: m.ComparisonPage })));
+const HistoryPage = lazy(() => import("./pages/HistoryPage").then(m => ({ default: m.HistoryPage })));
+const CalibrationPage = lazy(() => import("./pages/CalibrationPage").then(m => ({ default: m.CalibrationPage })));
+const LoginPage = lazy(() => import("./pages/auth/LoginPage").then(m => ({ default: m.LoginPage })));
+const RegisterPage = lazy(() => import("./pages/auth/RegisterPage").then(m => ({ default: m.RegisterPage })));
+const PricingPage = lazy(() => import("./pages/PricingPage").then(m => ({ default: m.PricingPage })));
+const DevPage = lazy(() => import("./pages/DevPage").then(m => ({ default: m.DevPage })));
+const SubscriptionPage = lazy(() => import("./pages/SubscriptionPage").then(m => ({ default: m.SubscriptionPage })));
+const SettingsPage = lazy(() => import("./pages/SettingsPage").then(m => ({ default: m.SettingsPage })));
+const AISettingsPage = lazy(() => import("./pages/AISettingsPage").then(m => ({ default: m.AISettingsPage })));
+const AIChatPage = lazy(() => import("./pages/AIChatPage").then(m => ({ default: m.AIChatPage })));
+const AITrainingPlanPage = lazy(() => import("./pages/AITrainingPlanPage").then(m => ({ default: m.AITrainingPlanPage })));
+const ArucoCalibrationPage = lazy(() => import("./pages/ArucoCalibrationPage").then(m => ({ default: m.ArucoCalibrationPage })));
 
 /**
  * Router basique avec hash routing
@@ -171,7 +173,19 @@ function App() {
     }
   };
 
-  return <div className="app dark text-foreground">{renderPage()}</div>;
+  return (
+    <div className="app dark text-foreground">
+      <Suspense
+        fallback={
+          <div className="min-h-screen bg-black flex items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-cyan-500" />
+          </div>
+        }
+      >
+        {renderPage()}
+      </Suspense>
+    </div>
+  );
 }
 
 export default App;
