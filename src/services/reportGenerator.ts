@@ -1,10 +1,10 @@
 /**
- * Service de génération de rapports détaillés
+ * Service de génération de rapports
  * Génère des rapports dans différents formats (PDF, HTML, DOCX)
  */
 
 import { jsPDF } from 'jspdf';
-import 'jspdf-autotable';
+// import 'jspdf-autotable'; // TODO: Installer package si nécessaire pour tables PDF
 import type { TrainingSession } from '@/types';
 import type { ReportOptions, ReportData, ReportSection, ReportTemplate } from '@/types/reports';
 

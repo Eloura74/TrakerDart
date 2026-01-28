@@ -103,44 +103,61 @@ export class AIService {
     // Préparer le contexte d'analyse
     const analysis = this.analyzeSessionsData(sessions);
     
-    const prompt = `Analyse les données de performance suivantes et génère 3-5 recommandations concrètes pour améliorer le jeu :
+    const prompt = `Données: ${analysis}
 
-${analysis}
+${context?.customPrompt ? `Focus: ${context.customPrompt}` : ''}
 
-${context?.customPrompt ? `\nConsidérations spécifiques : ${context.customPrompt}` : ''}
+Génère EXACTEMENT 2 recommandations ULTRA COURTES en JSON strict:
 
-Format de réponse (JSON) :
 {
   "recommendations": [
     {
-      "type": "technique|training|mental|equipment|strategy",
-      "title": "Titre court",
-      "description": "Description détaillée",
-      "priority": "low|medium|high",
-      "actionItems": ["Action 1", "Action 2"],
-      "reasoning": "Pourquoi cette recommandation",
+      "type": "technique",
+      "title": "Améliorer la régularité",
+      "description": "Travailler la constance du geste.",
+      "priority": "high",
+      "actionItems": ["Exercices répétitifs", "Analyse vidéo"],
+      "reasoning": "Plus de régularité = plus de précision",
       "estimatedImpact": 75
+    },
+    {
+      "type": "training",
+      "title": "Entraînement intensif",
+      "description": "Sessions plus fréquentes.",
+      "priority": "medium",
+      "actionItems": ["3x par semaine", "Focus technique"],
+      "reasoning": "Pratique régulière = progression",
+      "estimatedImpact": 65
     }
   ]
-}`;
+}
+
+Réponds UNIQUEMENT le JSON, rien d'autre.`;
 
     const response = await this.chat([
       { role: 'system', content: AI_SYSTEM_PROMPTS.coach },
       { role: 'user', content: prompt }
     ]);
 
-    // Parser la réponse JSON
+    // Parser la réponse JSON (avec extraction robuste)
     try {
-      const data = JSON.parse(response.content);
-      return data.recommendations.map((rec: any) => ({
+      const jsonContent = this.extractJSON(response.content);
+      const data = JSON.parse(jsonContent);
+      
+      if (!data.recommendations || !Array.isArray(data.recommendations)) {
+        throw new Error('Format de réponse invalide');
+      }
+
+      return data.recommendations.map((rec: Partial<AIRecommendation>) => ({
         ...rec,
         id: crypto.randomUUID(),
         generatedAt: new Date(),
         modelUsed: this.modelConfig.model,
-      }));
+      }) as AIRecommendation);
     } catch (error) {
       console.error('Erreur parsing recommandations:', error);
-      throw new Error('Impossible de parser les recommandations IA');
+      console.error('Contenu reçu:', response.content);
+      throw new Error('Impossible de parser les recommandations IA. Essayez de réduire la température ou changez de modèle.');
     }
   }
 
@@ -200,7 +217,13 @@ Format de réponse (JSON) :
     ]);
 
     try {
-      const data = JSON.parse(response.content);
+      const jsonContent = this.extractJSON(response.content);
+      const data = JSON.parse(jsonContent);
+      
+      if (!data.weeks || !Array.isArray(data.weeks)) {
+        throw new Error('Format de plan invalide');
+      }
+
       return {
         ...data,
         id: crypto.randomUUID(),
@@ -209,7 +232,8 @@ Format de réponse (JSON) :
       };
     } catch (error) {
       console.error('Erreur parsing plan d\'entraînement:', error);
-      throw new Error('Impossible de parser le plan d\'entraînement');
+      console.error('Contenu reçu:', response.content);
+      throw new Error('Impossible de parser le plan d\'entraînement. Essayez de simplifier votre objectif.');
     }
   }
 
@@ -255,6 +279,69 @@ Format de réponse (JSON) :
       modelUsed: config.model,
       tokensUsed: data.usage.total_tokens,
     };
+  }
+
+  /**
+   * Extraire JSON d'une réponse qui peut contenir du texte autour
+   * Tente de réparer le JSON tronqué si possible
+   */
+  private extractJSON(content: string): string {
+    // Cas 1: JSON dans un code block markdown
+    const codeBlockMatch = content.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
+    if (codeBlockMatch) {
+      return codeBlockMatch[1].trim();
+    }
+
+    // Cas 2: JSON direct
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      const rawJson = jsonMatch[0].trim();
+      
+      // Tenter de réparer le JSON tronqué
+      const repairedJson = this.repairTruncatedJSON(rawJson);
+      
+      return repairedJson;
+    }
+
+    // Cas 3: Retourner tel quel
+    return content.trim();
+  }
+
+  /**
+   * Réparer un JSON tronqué (ajouter les fermetures manquantes)
+   */
+  private repairTruncatedJSON(json: string): string {
+    try {
+      // Tester si le JSON est déjà valide
+      JSON.parse(json);
+      return json;
+    } catch (error) {
+      // JSON invalide, essayer de le réparer
+      
+      // Compter les accolades et crochets ouverts/fermés
+      const openBraces = (json.match(/\{/g) || []).length;
+      const closeBraces = (json.match(/\}/g) || []).length;
+      const openBrackets = (json.match(/\[/g) || []).length;
+      const closeBrackets = (json.match(/\]/g) || []).length;
+
+      // Fermer les strings ouvertes
+      const quotes = (json.match(/"/g) || []).length;
+      if (quotes % 2 !== 0) {
+        json += '"';
+      }
+
+      // Fermer les crochets manquants
+      for (let i = 0; i < (openBrackets - closeBrackets); i++) {
+        json += ']';
+      }
+
+      // Fermer les accolades manquantes
+      for (let i = 0; i < (openBraces - closeBraces); i++) {
+        json += '}';
+      }
+
+      return json;
+    }
   }
 
   /**

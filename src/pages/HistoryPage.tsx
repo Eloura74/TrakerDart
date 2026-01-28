@@ -30,11 +30,17 @@ import {
 import { BiomechanicsRadar } from "@/components/analysis/BiomechanicsRadar";
 import { ThrowReplay } from "@/components/analysis/ThrowReplay";
 import { ScoreDisplay } from "@/components/analysis/ScoreDisplay";
+import { AIRecommendationsSection } from "@/components/analysis/AIRecommendationsSection";
+import { ExportDialog } from "@/components/export/ExportDialog";
+import { ReportOptionsDialog } from "@/components/reports/ReportOptionsDialog";
 import type { Throw } from "@/types";
 
 export function HistoryPage() {
   const { sessions, deleteSession } = useAppStore();
   const [expandedVolleyId, setExpandedVolleyId] = useState<string | null>(null);
+  const [exportDialogOpen, setExportDialogOpen] = useState(false);
+  const [reportDialogOpen, setReportDialogOpen] = useState(false);
+  const [selectedSessionForAction, setSelectedSessionForAction] = useState<string | null>(null);
 
   /**
    * Supprimer une session
@@ -172,7 +178,33 @@ export function HistoryPage() {
 
                     <AccordionContent className="px-6 pb-6 pt-2 bg-black/20">
                       <div className="space-y-6">
-                        <div className="flex justify-end">
+                        <div className="flex justify-between items-center flex-wrap gap-2">
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedSessionForAction(session.id);
+                                setExportDialogOpen(true);
+                              }}
+                            >
+                              <Play className="h-4 w-4 mr-2" />
+                              Exporter Vidéo
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedSessionForAction(session.id);
+                                setReportDialogOpen(true);
+                              }}
+                            >
+                              <BarChart className="h-4 w-4 mr-2" />
+                              Générer Rapport
+                            </Button>
+                          </div>
                           <Button
                             variant="destructive"
                             size="sm"
@@ -182,7 +214,7 @@ export function HistoryPage() {
                             }}
                           >
                             <Trash2 className="h-4 w-4 mr-2" />
-                            Supprimer la session
+                            Supprimer
                           </Button>
                         </div>
 
@@ -585,6 +617,9 @@ export function HistoryPage() {
                             </Card>
                           ))}
                         </div>
+
+                        {/* Recommandations IA pour cette session */}
+                        <AIRecommendationsSection sessions={[session]} />
                       </div>
                     </AccordionContent>
                   </AccordionItem>
@@ -592,6 +627,22 @@ export function HistoryPage() {
               </Card>
             ))}
           </div>
+        )}
+
+        {/* Dialogs Export & Rapport */}
+        {selectedSessionForAction && (
+          <>
+            <ExportDialog
+              open={exportDialogOpen}
+              onClose={() => setExportDialogOpen(false)}
+              session={sessions.find(s => s.id === selectedSessionForAction)!}
+            />
+            <ReportOptionsDialog
+              open={reportDialogOpen}
+              onClose={() => setReportDialogOpen(false)}
+              sessions={sessions.filter(s => s.id === selectedSessionForAction)}
+            />
+          </>
         )}
       </main>
     </div>

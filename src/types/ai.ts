@@ -231,8 +231,8 @@ export const AI_MODELS: Record<AIModel, AIModelMetadata> = {
 export const DEFAULT_AI_SETTINGS: AISettings = {
   modelConfig: {
     model: 'gpt-3.5-turbo',   // Par défaut : le moins cher
-    temperature: 0.7,          // Équilibre créativité/précision
-    maxTokens: 1000,           // Limite raisonnable
+    temperature: 0.5,          // Bas pour réponses concises
+    maxTokens: 4000,           // Maximum augmenté pour sécurité
     enabled: true,
   },
   autoGenerateRecommendations: false,

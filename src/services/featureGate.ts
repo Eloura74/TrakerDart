@@ -122,7 +122,9 @@ export async function getMonthlyUsage(featureId: string): Promise<number> {
       .gte("period_start", startOfMonth.toISOString());
 
     if (error) {
-      console.error("Erreur getMonthlyUsage:", error);
+      // Table usage_tracking pas encore créée dans Supabase
+      // En mode dégradé : retourner 0 (usage illimité de facto)
+      console.warn("Usage tracking désactivé (table non créée):", error.message);
       return 0;
     }
 
