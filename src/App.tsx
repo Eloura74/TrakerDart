@@ -7,6 +7,7 @@ import { useState, useEffect, lazy, Suspense } from "react";
 import { Session } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import { useAppStore } from "@/store/useAppStore";
+import { ErrorBoundary } from "@/components/errors/ErrorBoundary";
 import { Loader2 } from "lucide-react";
 import "./index.css";
 
@@ -174,17 +175,19 @@ function App() {
   };
 
   return (
-    <div className="app dark text-foreground">
-      <Suspense
-        fallback={
-          <div className="min-h-screen bg-black flex items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-cyan-500" />
-          </div>
-        }
-      >
-        {renderPage()}
-      </Suspense>
-    </div>
+    <ErrorBoundary>
+      <div className="app dark text-foreground">
+        <Suspense
+          fallback={
+            <div className="min-h-screen bg-black flex items-center justify-center">
+              <Loader2 className="h-8 w-8 animate-spin text-cyan-500" />
+            </div>
+          }
+        >
+          {renderPage()}
+        </Suspense>
+      </div>
+    </ErrorBoundary>
   );
 }
 
