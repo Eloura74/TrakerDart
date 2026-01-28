@@ -59,6 +59,9 @@ export function DashboardLayout({
   onWidgetClick,
   isEditable,
 }: DashboardLayoutProps) {
+  // Détecter si on est sur mobile pour désactiver le drag
+  const isMobile = window.innerWidth < 768;
+  
   const renderWidgetContent = (widget: DashboardWidget) => {
     switch (widget.type) {
       case "stat":
@@ -106,8 +109,8 @@ export function DashboardLayout({
         cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
         rowHeight={100}
         onLayoutChange={(layout: Layout[]) => onLayoutChange(layout)}
-        isDraggable={isEditable}
-        isResizable={isEditable}
+        isDraggable={isEditable && !isMobile}
+        isResizable={isEditable && !isMobile}
         margin={[16, 16]}
         containerPadding={[0, 0]}
       >
