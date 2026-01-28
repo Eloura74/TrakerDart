@@ -5,7 +5,6 @@
 
 import { useState, useCallback, useRef } from "react";
 import {
-  ArrowLeft,
   RotateCcw,
   CheckCircle2,
   Loader2,
@@ -19,6 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { CameraCapture } from "@/components/camera/CameraCapture";
+import { AppHeader } from "@/components/layout/AppHeader";
 import { useAppStore } from "@/store/useAppStore";
 import { analyzethrow } from "@/lib/biomechanics/analyzer";
 import { compareThrows } from "@/lib/biomechanics/comparison";
@@ -207,17 +207,6 @@ export function CapturePage() {
     },
     [recordingState],
   );
-
-  /**
-   * Retour à l'accueil
-   */
-  const goBack = () => {
-    window.location.hash = "#/";
-  };
-
-  // Calcul du pourcentage de progression
-  const progress =
-    ((currentThrowIndex + (recordingState === "completed" ? 1 : 0)) / 3) * 100;
 
   return (
     <div className="min-h-screen app-bg-gradient text-white">
