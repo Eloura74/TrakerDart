@@ -68,8 +68,19 @@ export function AppHeader({
   const initials = userEmail ? userEmail.substring(0, 2).toUpperCase() : "U";
 
   return (
-    <header className="border-b border-white/10 sticky top-0 z-50 bg-black/80 backdrop-blur-xl">
-      <div className="container mx-auto px-4 py-3">
+    <header className="sticky top-0 z-50 border-b border-white/10 relative overflow-hidden">
+      {/* Background Image */}
+      <div
+        className="absolute inset-0 z-0 opacity-60"
+        style={{
+          backgroundImage: "url('/images/header_bg.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      />
+      <div className="absolute inset-0 z-0 bg-black/40 backdrop-blur-sm" />
+
+      <div className="container mx-auto px-4 py-3 relative z-10">
         <div className="flex items-center justify-between">
           {/* Logo + Titre */}
           <div

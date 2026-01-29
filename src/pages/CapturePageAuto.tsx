@@ -15,6 +15,7 @@ import { AppHeader } from "@/components/layout/AppHeader";
 import { checkAndTrackFeature } from "@/services/featureGate";
 import { PaywallModal } from "@/components/subscription/PaywallModal";
 import { Button } from "@/components/ui/button";
+import { PremiumActionButton } from "@/components/ui/PremiumActionButton";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
@@ -28,7 +29,10 @@ import type { Pose, Throw, Volley } from "@/types";
 import { RealtimeCoach } from "@/services/realtimeCoach";
 import { CoachingOverlay } from "@/components/coaching/CoachingOverlay";
 import { CoachingSettings } from "@/components/coaching/CoachingSettings";
-import type { RealtimeCoachingConfig, CoachingFeedback } from "@/types/coaching";
+import type {
+  RealtimeCoachingConfig,
+  CoachingFeedback,
+} from "@/types/coaching";
 
 export function CapturePageAuto() {
   const {
@@ -48,20 +52,33 @@ export function CapturePageAuto() {
   const [showPaywall, setShowPaywall] = useState(false);
 
   // États coaching temps réel
-  const [coachingConfig, setCoachingConfig] = useState<RealtimeCoachingConfig>(() => {
-    const saved = localStorage.getItem('coaching_config');
-    return saved ? JSON.parse(saved) : {
-      enabled: false,
-      mode: 'visual' as const,
-      sensitivity: 'normal' as const,
-      focusAreas: [
-        { joint: 'elbow' as const, threshold: 15, priority: 'high' as const },
-        { joint: 'shoulder' as const, threshold: 15, priority: 'medium' as const }
-      ],
-      cooldownMs: 2000
-    };
-  });
-  const [currentFeedback, setCurrentFeedback] = useState<CoachingFeedback | null>(null);
+  const [coachingConfig, setCoachingConfig] = useState<RealtimeCoachingConfig>(
+    () => {
+      const saved = localStorage.getItem("coaching_config");
+      return saved
+        ? JSON.parse(saved)
+        : {
+            enabled: false,
+            mode: "visual" as const,
+            sensitivity: "normal" as const,
+            focusAreas: [
+              {
+                joint: "elbow" as const,
+                threshold: 15,
+                priority: "high" as const,
+              },
+              {
+                joint: "shoulder" as const,
+                threshold: 15,
+                priority: "medium" as const,
+              },
+            ],
+            cooldownMs: 2000,
+          };
+    },
+  );
+  const [currentFeedback, setCurrentFeedback] =
+    useState<CoachingFeedback | null>(null);
   const coachRef = useRef<RealtimeCoach | null>(null);
 
   const motionDetectorRef = useRef(
@@ -77,7 +94,7 @@ export function CapturePageAuto() {
     if (coachRef.current) {
       coachRef.current.updateConfig(coachingConfig);
     }
-    localStorage.setItem('coaching_config', JSON.stringify(coachingConfig));
+    localStorage.setItem("coaching_config", JSON.stringify(coachingConfig));
   }, [coachingConfig]);
 
   /**
@@ -217,13 +234,13 @@ export function CapturePageAuto() {
    */
   const startAutoDetection = async () => {
     // Vérifier la limite de sessions mensuelles
-    const access = await checkAndTrackFeature('sessions_per_month');
-    
+    const access = await checkAndTrackFeature("sessions_per_month");
+
     if (!access.hasAccess) {
       setShowPaywall(true);
       return;
     }
-    
+
     setIsReady(true);
     motionDetectorRef.current.resetManually();
   };
@@ -240,7 +257,6 @@ export function CapturePageAuto() {
     setMotionState("idle");
     motionDetectorRef.current.resetManually();
   };
-
 
   const progress = (throws.length / 3) * 100;
 
@@ -311,11 +327,14 @@ export function CapturePageAuto() {
                 showSkeleton={true}
                 isRecording={isReady && !isCompleted}
               />
-              
+
               {/* Overlay coaching par-dessus la caméra */}
               <CoachingOverlay
                 feedback={currentFeedback}
-                show={coachingConfig.enabled && (isReady || currentFeedback !== null)}
+                show={
+                  coachingConfig.enabled &&
+                  (isReady || currentFeedback !== null)
+                }
               />
             </div>
 
@@ -325,7 +344,8 @@ export function CapturePageAuto() {
                 <p className="text-base font-medium">{getStatusMessage()}</p>
                 {isReady && !isCompleted && !isAnalyzing && (
                   <p className="text-sm text-muted-foreground mt-2">
-                    Effectuez votre lancer naturellement - Détection automatique active
+                    Effectuez votre lancer naturellement - Détection automatique
+                    active
                   </p>
                 )}
               </CardContent>
@@ -334,14 +354,13 @@ export function CapturePageAuto() {
             {/* Contrôles - Directement sous la caméra */}
             <div className="flex gap-3 justify-center">
               {!isReady && !isCompleted && (
-                <Button
+                <PremiumActionButton
                   onClick={startAutoDetection}
-                  size="lg"
-                  className="min-w-[250px]"
-                >
-                  <Zap className="mr-2 h-5 w-5" />
-                  Activer la détection automatique
-                </Button>
+                  icon={Zap}
+                  title="Activer la détection"
+                  subtitle="Lancement automatique"
+                  className="w-full max-w-md"
+                />
               )}
 
               {isReady && !isCompleted && (
@@ -381,7 +400,9 @@ export function CapturePageAuto() {
             {throws.length > 0 && (
               <Card>
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-base">Lancers enregistrés</CardTitle>
+                  <CardTitle className="text-base">
+                    Lancers enregistrés
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
@@ -425,7 +446,9 @@ export function CapturePageAuto() {
                   <ol className="space-y-1.5 list-decimal list-inside text-xs">
                     <li>Activez la détection automatique</li>
                     <li>Attendez d'être prêt</li>
-                    <li>Effectuez votre lancer <strong>naturellement</strong></li>
+                    <li>
+                      Effectuez votre lancer <strong>naturellement</strong>
+                    </li>
                     <li>L'appli détecte début et fin automatiquement</li>
                     <li>Répétez pour les lancers 2 et 3</li>
                   </ol>
@@ -434,7 +457,8 @@ export function CapturePageAuto() {
                     <div className="flex gap-2">
                       <AlertCircle className="w-3 h-3 text-warning mt-0.5 flex-shrink-0" />
                       <p className="text-xs text-muted-foreground">
-                        <strong>Important :</strong> Gestes nets et complets. Évitez les faux mouvements.
+                        <strong>Important :</strong> Gestes nets et complets.
+                        Évitez les faux mouvements.
                       </p>
                     </div>
                   </div>

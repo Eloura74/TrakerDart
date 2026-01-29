@@ -6,6 +6,7 @@
 import { useRef, useEffect, useState } from "react";
 import { Camera, CameraOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PremiumActionButton } from "@/components/ui/PremiumActionButton";
 import { Card } from "@/components/ui/card";
 import { useAppStore } from "@/store/useAppStore";
 import { initPoseDetector, detectPosesFromVideo } from "@/lib/pose/detector";
@@ -377,12 +378,14 @@ export function CameraCapture({
               </>
             ) : (
               <>
-                <Camera className="w-16 h-16 text-muted-foreground mb-4" />
-                <p className="text-muted-foreground mb-4">Caméra désactivée</p>
-                <Button onClick={startCamera}>
-                  <Camera className="mr-2 h-4 w-4" />
-                  Activer la caméra
-                </Button>
+                <div className="w-full max-w-md px-4">
+                  <PremiumActionButton
+                    onClick={startCamera}
+                    icon={Camera}
+                    title="Activer la caméra"
+                    subtitle="Initialisation du flux vidéo"
+                  />
+                </div>
               </>
             )}
           </div>

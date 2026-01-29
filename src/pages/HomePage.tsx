@@ -220,35 +220,52 @@ export function HomePage() {
       {/* Header Moderne */}
       <AppHeader />
 
-      {/* Barre d'actions */}
-      <div className="border-b border-white/10 bg-black/30 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <DashboardEditor
-                isEditable={isEditMode}
-                onToggleEdit={() => setIsEditMode(!isEditMode)}
-                onAddWidget={handleAddWidget}
-                onSaveLayout={handleSaveLayout}
-              />
+      {/* Banner Nouvelle Session */}
+      <div className="container mx-auto px-4 pt-6 pb-0">
+        <div
+          className="relative group cursor-pointer"
+          onClick={handleStartSession}
+        >
+          {/* Background Gradient & Glow */}
+          <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 to-blue-600/20 rounded-xl blur-md group-hover:blur-lg transition-all duration-300 opacity-75" />
+
+          {/* Main Content */}
+          <div className="relative h-20 rounded-xl overflow-hidden border border-cyan-500/30 bg-black/40 backdrop-blur-md flex items-center justify-center group-hover:border-cyan-500/50 transition-all duration-300">
+            {/* Decorative Background Elements */}
+            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:20px_20px] opacity-20" />
+            <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(6,182,212,0.1)_50%,transparent_75%,transparent_100%)] bg-[length:250%_250%,100%_100%] animate-background-shine opacity-50" />
+            <div className="absolute -left-10 -top-10 w-40 h-40 bg-cyan-500/10 rounded-full blur-3xl" />
+            <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-blue-600/10 rounded-full blur-3xl" />
+
+            {/* Text & Icon */}
+            <div className="relative z-10 flex items-center gap-3">
+              <div className="p-2 rounded-full bg-cyan-500/20 border border-cyan-500/50 group-hover:scale-110 transition-transform duration-300">
+                <PlayCircle className="h-6 w-6 text-cyan-400" />
+              </div>
+              <span className="text-xl font-bold text-white tracking-wide text-glow">
+                Nouvelle Session
+              </span>
             </div>
-            <Button
-              onClick={handleStartSession}
-              size="sm"
-              variant="outline"
-              className="border-white/20 hover:bg-white/5 hover:border-white/30"
-            >
-              <PlayCircle className="h-4 w-4 mr-2" />
-              Nouvelle Session
-            </Button>
           </div>
         </div>
+
+        {/* Dashboard Editor Toggle (Hidden but accessible if needed, or moved) */}
+        {isEditMode && (
+          <div className="mt-2 flex justify-end">
+            <DashboardEditor
+              isEditable={isEditMode}
+              onToggleEdit={() => setIsEditMode(!isEditMode)}
+              onAddWidget={handleAddWidget}
+              onSaveLayout={handleSaveLayout}
+            />
+          </div>
+        )}
       </div>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-6">
+      <main className="container mx-auto px-4 pt-3 pb-3">
         {/* Usage Banner (limites premium) */}
-        <div className="mb-6">
+        <div className="mb-3">
           <UsageBanner />
         </div>
 
