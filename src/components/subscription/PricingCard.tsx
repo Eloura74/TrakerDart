@@ -11,7 +11,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type {
   SubscriptionTierDetails,
@@ -104,24 +103,57 @@ export function PricingCard({
       </CardContent>
 
       <CardFooter className="pt-6">
-        <Button
-          onClick={onSelect}
-          disabled={isCurrentTier || loading}
+        {/* Bouton avec effet glow similaire à "Nouvelle Session" */}
+        <div
           className={cn(
-            "w-full",
-            highlighted && "bg-primary hover:bg-primary/90",
-            isCurrentTier && "opacity-50 cursor-not-allowed",
+            "relative w-full group",
+            (isCurrentTier || loading) && "pointer-events-none opacity-50"
           )}
-          variant={highlighted ? "default" : "outline"}
+          onClick={!isCurrentTier && !loading ? onSelect : undefined}
         >
-          {loading
-            ? "Chargement..."
-            : isCurrentTier
-              ? "Abonnement actuel"
-              : isFree
-                ? "Gratuit"
-                : "Souscrire"}
-        </Button>
+          {/* Background Gradient & Glow */}
+          {!isCurrentTier && (
+            <div className={cn(
+              "absolute inset-0 rounded-lg blur-md group-hover:blur-lg transition-all duration-300 opacity-75",
+              highlighted ? "bg-gradient-to-r from-cyan-500/30 to-blue-600/30" : "bg-gradient-to-r from-primary/20 to-primary/10"
+            )} />
+          )}
+
+          {/* Main Button */}
+          <div className={cn(
+            "relative h-12 rounded-lg overflow-hidden flex items-center justify-center transition-all duration-300",
+            highlighted 
+              ? "border border-cyan-500/40 bg-black/60 backdrop-blur-md group-hover:border-cyan-500/60" 
+              : "border border-primary/30 bg-black/40 backdrop-blur-sm group-hover:border-primary/50",
+            isCurrentTier && "border-green-500/50 bg-green-500/10"
+          )}>
+            {/* Decorative Background Elements */}
+            {!isCurrentTier && (
+              <>
+                <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:20px_20px] opacity-20" />
+                <div className={cn(
+                  "absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(6,182,212,0.1)_50%,transparent_75%,transparent_100%)] bg-[length:250%_250%,100%_100%] opacity-50",
+                  highlighted && "animate-background-shine"
+                )} />
+              </>
+            )}
+
+            {/* Button Text */}
+            <span className={cn(
+              "relative z-10 font-semibold tracking-wide transition-all duration-300",
+              highlighted ? "text-cyan-400 text-glow" : "text-white",
+              isCurrentTier && "text-green-400"
+            )}>
+              {loading
+                ? "Chargement..."
+                : isCurrentTier
+                  ? "Abonnement actuel"
+                  : isFree
+                    ? "Commencer gratuitement"
+                    : "Souscrire maintenant"}
+            </span>
+          </div>
+        </div>
       </CardFooter>
     </Card>
   );

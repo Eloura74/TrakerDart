@@ -4,7 +4,7 @@
  */
 
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
 import type {
   AppState,
   CameraConfig,
@@ -13,6 +13,7 @@ import type {
   TrainingSession,
   Volley,
 } from "@/types";
+import { safeJSONParse } from "@/lib/utils/secureStorage";
 
 /**
  * Actions du store
@@ -323,6 +324,35 @@ export const useAppStore = create<AppState & AppActions>()(
     }),
     {
       name: "trakerdart-storage", // Nom dans localStorage
+      // Storage personnalisé avec gestion d'erreurs robuste
+      storage: createJSONStorage(() => ({
+        getItem: (name: string) => {
+          try {
+            const value = localStorage.getItem(name);
+            if (!value) return null;
+            
+            // Parser de manière sécurisée
+            return safeJSONParse(value, null);
+          } catch (error) {
+            console.error(`❌ Erreur lecture store [${name}]:`, error);
+            return null;
+          }
+        },
+        setItem: (name: string, value: unknown) => {
+          try {
+            localStorage.setItem(name, JSON.stringify(value));
+          } catch (error) {
+            console.error(`❌ Erreur écriture store [${name}]:`, error);
+          }
+        },
+        removeItem: (name: string) => {
+          try {
+            localStorage.removeItem(name);
+          } catch (error) {
+            console.error(`❌ Erreur suppression store [${name}]:`, error);
+          }
+        },
+      })),
       partialize: (state) => ({
         // Ne persister que certaines parties de l'état
         cameraConfig: state.cameraConfig,

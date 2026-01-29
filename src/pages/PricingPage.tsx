@@ -6,7 +6,6 @@
 import { useState, useEffect } from "react";
 import { Check, HelpCircle } from "lucide-react";
 import { AppHeader } from "@/components/layout/AppHeader";
-import { Button } from "@/components/ui/button";
 import { PricingCard } from "@/components/subscription/PricingCard";
 import { SubscriptionBadge } from "@/components/subscription/SubscriptionBadge";
 import {
@@ -207,14 +206,31 @@ export function PricingPage() {
             Rejoignez des centaines de joueurs qui améliorent leur technique
             avec TrakerDart
           </p>
-          <Button
-            size="lg"
-            onClick={() => handleSelectTier("pro")}
-            disabled={loading || currentTier !== "free"}
-            className="bg-primary hover:bg-primary/90 text-white"
-          >
-            Commencer l'essai
-          </Button>
+          
+          {/* Bouton CTA avec effet glow */}
+          <div className="flex justify-center">
+            <div
+              className="relative group cursor-pointer"
+              onClick={() => handleSelectTier("pro")}
+            >
+              {/* Background Gradient & Glow */}
+              <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/40 to-blue-600/40 rounded-xl blur-md group-hover:blur-xl transition-all duration-300 opacity-75" />
+
+              {/* Main Button */}
+              <div className="relative px-8 py-4 rounded-xl overflow-hidden border border-cyan-500/50 bg-black/60 backdrop-blur-md flex items-center justify-center group-hover:border-cyan-500/70 transition-all duration-300">
+                {/* Decorative Background Elements */}
+                <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.05)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.05)_1px,transparent_1px)] bg-[size:20px_20px] opacity-20" />
+                <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(6,182,212,0.15)_50%,transparent_75%,transparent_100%)] bg-[length:250%_250%,100%_100%] animate-background-shine opacity-60" />
+                <div className="absolute -left-10 -top-10 w-32 h-32 bg-cyan-500/20 rounded-full blur-3xl" />
+                <div className="absolute -right-10 -bottom-10 w-32 h-32 bg-blue-600/20 rounded-full blur-3xl" />
+
+                {/* Text */}
+                <span className="relative z-10 text-xl font-bold text-cyan-400 tracking-wide text-glow">
+                  {loading ? "Chargement..." : currentTier !== "free" ? "Déjà abonné" : "Commencer l'essai"}
+                </span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

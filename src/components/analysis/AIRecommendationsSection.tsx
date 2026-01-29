@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
+import { safeLocalStorageGetString, safeLocalStorageGet } from '@/lib/utils/secureStorage';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -28,18 +29,17 @@ export function AIRecommendationsSection({ sessions }: AIRecommendationsSectionP
   const [tier, setTier] = useState<'free' | 'pro' | 'elite'>('free');
   const [hasApiKey, setHasApiKey] = useState(false);
 
-  // Charger config au montage
+  // Charger config au montage de manière sécurisée
   useEffect(() => {
-    const apiKey = localStorage.getItem('openai_api_key');
-    const savedSettings = localStorage.getItem('ai_settings');
-    const savedRecs = localStorage.getItem('ai_recommendations');
+    const apiKey = safeLocalStorageGetString('openai_api_key');
     
     setHasApiKey(!!apiKey);
 
     if (apiKey) {
-      const settings: AISettings = savedSettings 
-        ? JSON.parse(savedSettings) 
-        : DEFAULT_AI_SETTINGS;
+      const settings = safeLocalStorageGet<AISettings>(
+        'ai_settings',
+        DEFAULT_AI_SETTINGS
+      );
       
       const service = new AIService(apiKey, settings.modelConfig);
       setAiService(service);
@@ -48,13 +48,13 @@ export function AIRecommendationsSection({ sessions }: AIRecommendationsSectionP
     // Charger tier
     getUserTier().then(setTier);
 
-    // Charger recommandations sauvegardées
-    if (savedRecs) {
-      try {
-        setRecommendations(JSON.parse(savedRecs));
-      } catch (error) {
-        console.error('Erreur chargement recommandations:', error);
-      }
+    // Charger recommandations sauvegardées de manière sécurisée
+    const savedRecs = safeLocalStorageGet<AIRecommendation[]>(
+      'ai_recommendations',
+      []
+    );
+    if (savedRecs.length > 0) {
+      setRecommendations(savedRecs);
     }
   }, []);
 
@@ -98,10 +98,14 @@ export function AIRecommendationsSection({ sessions }: AIRecommendationsSectionP
         title: 'Recommandations générées !',
         description: `${recs.length} recommandations personnalisées ont été créées.`,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : 'Impossible de générer les recommandations.';
+      
       toast({
         title: 'Erreur',
-        description: error.message || 'Impossible de générer les recommandations.',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {

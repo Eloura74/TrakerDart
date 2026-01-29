@@ -14,6 +14,11 @@ import type {
 } from "@/types/ai";
 import { AI_MODELS, AI_SYSTEM_PROMPTS } from "@/types/ai";
 import type { TrainingSession } from "@/types";
+import { fetchWithTimeout } from "@/lib/utils/fetchWithTimeout";
+import {
+  safeLocalStorageGet,
+  safeLocalStorageSet,
+} from "@/lib/utils/secureStorage";
 
 /**
  * Configuration OpenAI
@@ -59,11 +64,20 @@ export class AIService {
   private modelConfig: AIModelConfig;
   private baseURL = "https://api.openai.com/v1";
   private usageStats: AIUsageStats;
+  private defaultTimeout = 30000; // 30 secondes par défaut
 
   constructor(apiKey: string, modelConfig: AIModelConfig) {
     this.config = { apiKey };
     this.modelConfig = modelConfig;
     this.usageStats = this.loadUsageStats();
+    
+    // Avertissement sécurité si clé API utilisée côté client
+    if (apiKey) {
+      console.warn(
+        "⚠️ SÉCURITÉ : Clé API OpenAI utilisée côté client. " +
+        "En production, préférez un backend proxy pour protéger votre clé."
+      );
+    }
   }
 
   /**
@@ -289,6 +303,7 @@ Réponds UNIQUEMENT JSON (${weeksCount} semaines complètes):
 
   /**
    * Chat interactif avec l'IA
+   * IMPORTANT: Utilise fetchWithTimeout pour éviter les blocages réseau
    */
   async chat(
     messages: OpenAIMessage[],
@@ -296,41 +311,77 @@ Réponds UNIQUEMENT JSON (${weeksCount} semaines complètes):
   ): Promise<AIChatMessage> {
     const config = { ...this.modelConfig, ...options };
 
-    const response = await fetch(`${this.baseURL}/chat/completions`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${this.config.apiKey}`,
-      },
-      body: JSON.stringify({
-        model: config.model,
-        messages,
-        temperature: config.temperature,
-        max_tokens: config.maxTokens,
-      }),
-    });
-
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(
-        `OpenAI API error: ${error.error?.message || "Unknown error"}`
+    try {
+      // Utiliser fetchWithTimeout au lieu de fetch natif
+      const response = await fetchWithTimeout(
+        `${this.baseURL}/chat/completions`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${this.config.apiKey}`,
+          },
+          body: JSON.stringify({
+            model: config.model,
+            messages,
+            temperature: config.temperature,
+            max_tokens: config.maxTokens,
+          }),
+        },
+        this.defaultTimeout // Timeout de 30 secondes
       );
+
+      if (!response.ok) {
+        // Tenter de lire le message d'erreur de manière sécurisée
+        let errorMessage = "Unknown error";
+        try {
+          const error = await response.json();
+          errorMessage = error.error?.message || errorMessage;
+        } catch {
+          // Si parsing JSON échoue, utiliser le statut HTTP
+          errorMessage = `HTTP ${response.status} ${response.statusText}`;
+        }
+        throw new Error(`OpenAI API error: ${errorMessage}`);
+      }
+
+      // Parser la réponse de manière sécurisée
+      const data: OpenAIResponse = await response.json();
+      
+      // Vérifier que la réponse contient les données attendues
+      if (!data.choices?.[0]?.message) {
+        throw new Error("Réponse OpenAI invalide: pas de message dans choices[0]");
+      }
+
+      const message = data.choices[0].message;
+
+      // Mettre à jour les stats d'utilisation
+      this.updateUsageStats(data.usage.total_tokens, config.model);
+
+      return {
+        id: data.id,
+        role: message.role,
+        content: message.content,
+        timestamp: new Date(),
+        modelUsed: config.model,
+        tokensUsed: data.usage.total_tokens,
+      };
+    } catch (error) {
+      // Améliorer les messages d'erreur pour l'utilisateur
+      if (error instanceof Error) {
+        if (error.message.includes("Timeout")) {
+          throw new Error(
+            "⏱️ Timeout: L'API OpenAI met trop de temps à répondre. Vérifiez votre connexion ou réessayez."
+          );
+        }
+        if (error.message.includes("Failed to fetch")) {
+          throw new Error(
+            "🌐 Erreur réseau: Impossible de contacter l'API OpenAI. Vérifiez votre connexion Internet."
+          );
+        }
+      }
+      // Relancer l'erreur originale si non gérée
+      throw error;
     }
-
-    const data: OpenAIResponse = await response.json();
-    const message = data.choices[0].message;
-
-    // Mettre à jour les stats d'utilisation
-    this.updateUsageStats(data.usage.total_tokens, config.model);
-
-    return {
-      id: data.id,
-      role: message.role,
-      content: message.content,
-      timestamp: new Date(),
-      modelUsed: config.model,
-      tokensUsed: data.usage.total_tokens,
-    };
   }
 
   /**
@@ -516,21 +567,20 @@ Temps de pratique total : ${sessions.reduce(
   }
 
   /**
-   * Sauvegarder la config du modèle
+   * Sauvegarder la config du modèle de manière sécurisée
    */
   private saveModelConfig(): void {
-    localStorage.setItem("ai_model_config", JSON.stringify(this.modelConfig));
+    const success = safeLocalStorageSet("ai_model_config", this.modelConfig);
+    if (!success) {
+      console.error("❌ Impossible de sauvegarder la config IA");
+    }
   }
 
   /**
-   * Charger les stats depuis localStorage
+   * Charger les stats depuis localStorage de manière sécurisée
    */
   private loadUsageStats(): AIUsageStats {
-    const saved = localStorage.getItem("ai_usage_stats");
-    if (saved) {
-      return JSON.parse(saved);
-    }
-    return {
+    const defaultStats: AIUsageStats = {
       totalRequests: 0,
       totalTokensUsed: 0,
       totalCostUSD: 0,
@@ -538,13 +588,18 @@ Temps de pratique total : ${sessions.reduce(
       averageResponseTime: 0,
       lastUsed: new Date(),
     };
+
+    return safeLocalStorageGet<AIUsageStats>("ai_usage_stats", defaultStats);
   }
 
   /**
-   * Sauvegarder les stats
+   * Sauvegarder les stats de manière sécurisée
    */
   private saveUsageStats(): void {
-    localStorage.setItem("ai_usage_stats", JSON.stringify(this.usageStats));
+    const success = safeLocalStorageSet("ai_usage_stats", this.usageStats);
+    if (!success) {
+      console.error("❌ Impossible de sauvegarder les stats d'utilisation IA");
+    }
   }
 }
 

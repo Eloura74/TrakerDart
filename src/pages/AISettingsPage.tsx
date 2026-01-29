@@ -17,9 +17,15 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { AIModelSelector } from "@/components/ai/AIModelSelector";
 import { AppHeader } from "@/components/layout/AppHeader";
-import { ArrowLeft, Key, Save, Eye, EyeOff, ExternalLink } from "lucide-react";
+import { ArrowLeft, Key, Save, Eye, EyeOff, ExternalLink, AlertTriangle } from "lucide-react";
 import type { AIModelConfig, AISettings } from "@/types/ai";
 import { DEFAULT_AI_SETTINGS } from "@/types/ai";
+import {
+  safeLocalStorageGet,
+  safeLocalStorageSet,
+  safeLocalStorageGetString,
+  safeLocalStorageSetString,
+} from "@/lib/utils/secureStorage";
 
 export function AISettingsPage() {
   const { toast } = useToast();
@@ -34,44 +40,52 @@ export function AISettingsPage() {
   }, []);
 
   /**
-   * Charger les settings depuis localStorage
+   * Charger les settings depuis le stockage sécurisé
+   * - Clé API: localStorage (persistée, pratique mais à risque)
+   * - Settings: localStorage (persistés entre sessions)
    */
   const loadSettings = () => {
-    const savedApiKey = localStorage.getItem("openai_api_key");
-    const savedSettings = localStorage.getItem("ai_settings");
-
+    // Charger la clé API depuis localStorage (parsing sécurisé)
+    const savedApiKey = safeLocalStorageGetString("openai_api_key");
     if (savedApiKey) {
       setApiKey(savedApiKey);
     }
 
-    if (savedSettings) {
-      setSettings(JSON.parse(savedSettings));
-    }
+    // Charger les settings depuis localStorage (avec parsing sécurisé)
+    const savedSettings = safeLocalStorageGet<AISettings>(
+      "ai_settings",
+      DEFAULT_AI_SETTINGS
+    );
+    setSettings(savedSettings);
   };
 
   /**
-   * Sauvegarder les settings
+   * Sauvegarder les settings de manière sécurisée
+   * - Clé API: localStorage (persistée entre sessions)
+   * - Settings: localStorage (persistés)
    */
   const saveSettings = () => {
-    try {
-      // Sauvegarder l'API key
-      if (apiKey.trim()) {
-        localStorage.setItem("openai_api_key", apiKey.trim());
-      }
+    let apiKeySuccess = true;
+    let settingsSuccess = true;
 
-      // Sauvegarder les settings
-      localStorage.setItem("ai_settings", JSON.stringify(settings));
+    // Sauvegarder l'API key dans localStorage
+    if (apiKey.trim()) {
+      apiKeySuccess = safeLocalStorageSetString("openai_api_key", apiKey.trim());
+    }
 
+    // Sauvegarder les settings dans localStorage
+    settingsSuccess = safeLocalStorageSet("ai_settings", settings);
+
+    if (apiKeySuccess && settingsSuccess) {
       setHasChanges(false);
-
       toast({
         title: "Configuration sauvegardée",
         description: "Vos paramètres IA ont été enregistrés avec succès.",
       });
-    } catch (error) {
+    } else {
       toast({
-        title: "Erreur",
-        description: "Impossible de sauvegarder les paramètres.",
+        title: "Erreur de sauvegarde",
+        description: "Impossible de sauvegarder certains paramètres. Vérifiez la console.",
         variant: "destructive",
       });
     }
@@ -174,10 +188,36 @@ export function AISettingsPage() {
                     </Button>
                   </div>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  ⚠️ Votre clé API est stockée localement dans votre navigateur
-                  uniquement. Elle n'est jamais envoyée à nos serveurs.
-                </p>
+                
+                {/* Avertissement sécurité */}
+                <div className="space-y-2">
+                  <div className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                    <div className="flex items-start gap-2">
+                      <AlertTriangle className="h-4 w-4 text-yellow-500 mt-0.5 flex-shrink-0" />
+                      <div className="text-xs text-yellow-200 space-y-1">
+                        <p className="font-medium">⚠️ Stockage local</p>
+                        <p>
+                          Votre clé API est stockée dans <strong>localStorage</strong> de votre navigateur.
+                          Elle est protégée par parsing sécurisé mais reste accessible en cas d'attaque XSS.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                    <div className="flex items-start gap-2">
+                      <AlertTriangle className="h-4 w-4 text-blue-400 mt-0.5 flex-shrink-0" />
+                      <div className="text-xs text-blue-200 space-y-1">
+                        <p className="font-medium">💡 Recommandation production</p>
+                        <p>
+                          Pour une sécurité maximale, utilisez un <strong>backend proxy</strong>
+                          (ex: Supabase Edge Function) qui stocke votre clé côté serveur et effectue
+                          les appels OpenAI pour vous.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
 
               {!apiKey && (

@@ -4,6 +4,7 @@
  */
 
 import type { CalibrationProfile, CalibrationResult, ArucoTargetConfig } from '@/types/aruco';
+import { safeLocalStorageGet } from '@/lib/utils/secureStorage';
 
 const STORAGE_KEY = 'aruco_calibration_profiles';
 const ACTIVE_PROFILE_KEY = 'active_calibration_profile';
@@ -49,18 +50,10 @@ export class CalibrationManager {
   }
 
   /**
-   * Obtenir tous les profils
+   * Obtenir tous les profils de manière sécurisée
    */
   static getAllProfiles(): CalibrationProfile[] {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) return [];
-
-    try {
-      return JSON.parse(stored);
-    } catch (error) {
-      console.error('Erreur chargement profils:', error);
-      return [];
-    }
+    return safeLocalStorageGet<CalibrationProfile[]>(STORAGE_KEY, []);
   }
 
   /**
@@ -147,10 +140,16 @@ export class CalibrationManager {
   }
 
   /**
-   * Importer un profil depuis JSON
+   * Importer un profil depuis JSON de manière sécurisée
    */
   static importProfile(json: string): CalibrationProfile {
-    const profile: CalibrationProfile = JSON.parse(json);
+    let profile: CalibrationProfile;
+    
+    try {
+      profile = JSON.parse(json);
+    } catch (error) {
+      throw new Error(`Impossible de parser le JSON du profil: ${error}`);
+    }
     
     // Valider les champs requis
     if (!profile.name || !profile.result || !profile.targetConfig) {

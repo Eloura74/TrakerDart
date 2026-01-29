@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect } from "react";
+import { safeLocalStorageGetString, safeLocalStorageGet } from "@/lib/utils/secureStorage";
 import {
   Card,
   CardContent,
@@ -44,8 +45,7 @@ export function AITrainingPlanPage() {
 
   // Charger la config IA au montage
   useEffect(() => {
-    const apiKey = localStorage.getItem("openai_api_key");
-    const savedSettings = localStorage.getItem("ai_settings");
+    const apiKey = safeLocalStorageGetString("openai_api_key");
 
     if (!apiKey) {
       toast({
@@ -57,9 +57,10 @@ export function AITrainingPlanPage() {
       return;
     }
 
-    const settings: AISettings = savedSettings
-      ? JSON.parse(savedSettings)
-      : DEFAULT_AI_SETTINGS;
+    const settings = safeLocalStorageGet<AISettings>(
+      "ai_settings",
+      DEFAULT_AI_SETTINGS
+    );
 
     if (!settings.trainingPlanEnabled) {
       toast({
@@ -102,10 +103,14 @@ export function AITrainingPlanPage() {
         title: "Plan généré !",
         description: `Votre plan d'entraînement de ${duration} jours est prêt.`,
       });
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : "Impossible de générer le plan.";
+      
       toast({
         title: "Erreur",
-        description: error.message || "Impossible de générer le plan.",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {

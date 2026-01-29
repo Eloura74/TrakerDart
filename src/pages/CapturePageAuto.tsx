@@ -3,7 +3,8 @@
  * Détection automatique du début et fin de chaque lancer
  */
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { safeLocalStorageGet } from "@/lib/utils/secureStorage";
 import {
   RotateCcw,
   CheckCircle2,
@@ -54,27 +55,29 @@ export function CapturePageAuto() {
   // États coaching temps réel
   const [coachingConfig, setCoachingConfig] = useState<RealtimeCoachingConfig>(
     () => {
-      const saved = localStorage.getItem("coaching_config");
-      return saved
-        ? JSON.parse(saved)
-        : {
-            enabled: false,
-            mode: "visual" as const,
-            sensitivity: "normal" as const,
-            focusAreas: [
-              {
-                joint: "elbow" as const,
-                threshold: 15,
-                priority: "high" as const,
-              },
-              {
-                joint: "shoulder" as const,
-                threshold: 15,
-                priority: "medium" as const,
-              },
-            ],
-            cooldownMs: 2000,
-          };
+      const defaultConfig: RealtimeCoachingConfig = {
+        enabled: false,
+        mode: "visual" as const,
+        sensitivity: "normal" as const,
+        focusAreas: [
+          {
+            joint: "elbow" as const,
+            threshold: 15,
+            priority: "high" as const,
+          },
+          {
+            joint: "shoulder" as const,
+            threshold: 15,
+            priority: "medium" as const,
+          },
+        ],
+        cooldownMs: 2000,
+      };
+      
+      return safeLocalStorageGet<RealtimeCoachingConfig>(
+        "coaching_config",
+        defaultConfig
+      );
     },
   );
   const [currentFeedback, setCurrentFeedback] =

@@ -90,6 +90,7 @@ function App() {
   );
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [shouldRedirectToLogin, setShouldRedirectToLogin] = useState(false);
   const loadUserData = useAppStore((state) => state.loadUserData);
 
   useEffect(() => {
@@ -124,6 +125,14 @@ function App() {
     return () => window.removeEventListener("hashchange", handleHashChange);
   }, []);
 
+  // Gérer la redirection vers login sans side-effect dans le rendu
+  useEffect(() => {
+    if (shouldRedirectToLogin) {
+      window.location.hash = "#/login";
+      setShouldRedirectToLogin(false);
+    }
+  }, [shouldRedirectToLogin]);
+
   // Parser la route pour extraire les paramètres
   const parseRoute = (route: string) => {
     const parts = route.split("/");
@@ -151,8 +160,10 @@ function App() {
 
     // Protection des routes privées
     if (!session) {
-      // Rediriger vers login si non connecté
-      window.location.hash = "#/login";
+      // Déclencher la redirection via useEffect (évite le side-effect dans le rendu)
+      if (path !== "login" && path !== "register") {
+        setShouldRedirectToLogin(true);
+      }
       return <LoginPage />;
     }
 

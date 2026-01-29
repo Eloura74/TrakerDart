@@ -4,6 +4,7 @@
  */
 
 import { useState, useEffect, useRef } from "react";
+import { safeLocalStorageGetString, safeLocalStorageGet } from "@/lib/utils/secureStorage";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,8 +34,7 @@ export function AIChatPage() {
 
   // Charger la config IA au montage
   useEffect(() => {
-    const apiKey = localStorage.getItem("openai_api_key");
-    const savedSettings = localStorage.getItem("ai_settings");
+    const apiKey = safeLocalStorageGetString("openai_api_key");
 
     if (!apiKey) {
       toast({
@@ -46,9 +46,10 @@ export function AIChatPage() {
       return;
     }
 
-    const settings: AISettings = savedSettings
-      ? JSON.parse(savedSettings)
-      : DEFAULT_AI_SETTINGS;
+    const settings = safeLocalStorageGet<AISettings>(
+      "ai_settings",
+      DEFAULT_AI_SETTINGS
+    );
 
     if (!settings.chatEnabled) {
       toast({
@@ -97,8 +98,8 @@ export function AIChatPage() {
     setLoading(true);
 
     try {
-      // Préparer le contexte de conversation
-      const chatHistory = messages.map((m) => ({
+      // Préparer le contexte de conversation (typeé explicitement)
+      const chatHistory: Array<{ role: "system" | "user" | "assistant"; content: string }> = messages.map((m) => ({
         role: m.role,
         content: m.content,
       }));
@@ -109,13 +110,17 @@ export function AIChatPage() {
       });
 
       // Appeler l'IA
-      const response = await aiService.chat(chatHistory as any);
+      const response = await aiService.chat(chatHistory);
 
       setMessages((prev) => [...prev, response]);
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error 
+        ? error.message 
+        : "Impossible de communiquer avec l'IA.";
+      
       toast({
         title: "Erreur",
-        description: error.message || "Impossible de communiquer avec l'IA.",
+        description: errorMessage,
         variant: "destructive",
       });
 
