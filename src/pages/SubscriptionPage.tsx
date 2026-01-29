@@ -209,7 +209,7 @@ export function SubscriptionPage() {
                       variant="outline"
                       onClick={() => setShowCancelDialog(true)}
                       disabled={canceling}
-                      className="flex-1"
+                      className="flex-1 border-red-500/30 text-red-400 hover:bg-red-500/10 hover:text-red-300 hover:border-red-500/50 transition-all duration-300"
                     >
                       {canceling ? "Annulation..." : "Annuler l'abonnement"}
                     </Button>

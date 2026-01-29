@@ -339,13 +339,32 @@ export function CapturePageAuto() {
             </div>
 
             {/* État actuel */}
-            <Card className={`${getStatusColor()} transition-colors`}>
-              <CardContent className="p-4 text-center">
-                <p className="text-base font-medium">{getStatusMessage()}</p>
+            {/* État actuel */}
+            <Card
+              className={`transition-all duration-300 backdrop-blur-sm border-white/5 ${
+                motionState === "idle" ? "bg-black/40" : getStatusColor()
+              }`}
+            >
+              <CardContent className="p-3 text-center">
+                <div className="flex items-center justify-center gap-2">
+                  {motionState === "idle" && (
+                    <div className="w-2 h-2 rounded-full bg-gray-500 animate-pulse" />
+                  )}
+                  {motionState === "preparing" && (
+                    <div className="w-2 h-2 rounded-full bg-yellow-500 animate-ping" />
+                  )}
+                  {motionState === "throwing" && (
+                    <div className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
+                  )}
+
+                  <p className="text-sm font-medium font-heading tracking-wide uppercase text-gray-200">
+                    {getStatusMessage()}
+                  </p>
+                </div>
+
                 {isReady && !isCompleted && !isAnalyzing && (
-                  <p className="text-sm text-muted-foreground mt-2">
-                    Effectuez votre lancer naturellement - Détection automatique
-                    active
+                  <p className="text-[10px] text-gray-500 mt-1 font-mono">
+                    DÉTECTION AUTOMATIQUE ACTIVE
                   </p>
                 )}
               </CardContent>
