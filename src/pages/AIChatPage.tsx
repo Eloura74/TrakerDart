@@ -146,12 +146,12 @@ export function AIChatPage() {
   };
 
   return (
-    <div className="min-h-screen app-bg-gradient">
+    <div className="h-screen flex flex-col app-bg-gradient overflow-hidden">
       <AppHeader />
 
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="flex-1 container mx-auto px-4 py-4 sm:py-6 max-w-4xl flex flex-col min-h-0">
         {/* Header */}
-        <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 flex-shrink-0">
           <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
             <Button
               variant="ghost"
@@ -182,15 +182,15 @@ export function AIChatPage() {
         </div>
 
         {/* Zone de chat */}
-        <Card className="border-primary/20 h-[500px] sm:h-[600px] flex flex-col">
-          <CardHeader className="border-b border-border/50">
+        <Card className="border-primary/20 flex-1 flex flex-col min-h-0 glass-card">
+          <CardHeader className="border-b border-border/50 py-3 flex-shrink-0">
             <CardTitle className="text-base flex items-center gap-2">
               <Bot className="h-5 w-5 text-primary" />
               Conversation avec votre coach
             </CardTitle>
           </CardHeader>
 
-          <CardContent className="flex-1 overflow-y-auto p-4 space-y-4">
+          <CardContent className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-hide">
             {messages.map((message) => (
               <div
                 key={message.id}
@@ -218,8 +218,8 @@ export function AIChatPage() {
                   <div
                     className={`inline-block p-3 rounded-lg ${
                       message.role === "user"
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-muted"
+                        ? "bg-primary text-primary-foreground shadow-lg shadow-cyan-500/20"
+                        : "bg-muted/80 backdrop-blur-sm border border-white/5"
                     }`}
                   >
                     <p className="text-sm whitespace-pre-wrap">
@@ -268,7 +268,7 @@ export function AIChatPage() {
           </CardContent>
 
           {/* Input */}
-          <div className="border-t border-border/50 p-4">
+          <div className="border-t border-border/50 p-4 flex-shrink-0 bg-black/20">
             <div className="flex gap-2">
               <Input
                 value={input}
@@ -276,7 +276,7 @@ export function AIChatPage() {
                 onKeyPress={handleKeyPress}
                 placeholder="Posez votre question..."
                 disabled={!aiService || loading}
-                className="flex-1"
+                className="flex-1 bg-black/40 border-white/10 focus:border-primary/50"
               />
               <Button
                 onClick={sendMessage}
@@ -309,7 +309,7 @@ export function AIChatPage() {
         </Card>
 
         {/* Suggestions rapides */}
-        <div className="mt-4 space-y-2">
+        <div className="mt-4 space-y-2 flex-shrink-0">
           <p className="text-sm text-muted-foreground">
             Suggestions de questions :
           </p>
@@ -326,6 +326,7 @@ export function AIChatPage() {
                 size="sm"
                 onClick={() => setInput(suggestion)}
                 disabled={loading || !aiService}
+                className="bg-white/5 border-white/10 hover:bg-primary/10 hover:border-primary/30 transition-all"
               >
                 {suggestion}
               </Button>

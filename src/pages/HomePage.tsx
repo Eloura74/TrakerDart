@@ -28,6 +28,7 @@ export function HomePage() {
         color: "cyan",
         icon: <History className="h-5 w-5" />,
         backgroundImage: "/images/stats_sessions_bg.png",
+        className: "hover:shadow-glow-cyan transition-all duration-300",
       },
       data: { value: 0, trend: 0, trendLabel: "vs mois dernier" },
     },
@@ -40,6 +41,7 @@ export function HomePage() {
         color: "purple",
         icon: <Target className="h-5 w-5" />,
         backgroundImage: "/images/stats_throws_bg.png",
+        className: "hover:shadow-glow-purple transition-all duration-300",
       },
       data: { value: 0, trend: 0 },
     },
@@ -52,6 +54,7 @@ export function HomePage() {
         color: "orange",
         icon: <Activity className="h-5 w-5" />,
         backgroundImage: "/images/stats_consistency_bg.png",
+        className: "hover:shadow-glow-orange transition-all duration-300",
       },
       data: { value: "0%", trend: 0 },
     },
@@ -64,6 +67,7 @@ export function HomePage() {
         color: "green",
         icon: <Trophy className="h-5 w-5" />,
         backgroundImage: "/images/global_bg.png",
+        className: "hover:shadow-glow-green transition-all duration-300",
       },
       data: { value: 0, trend: 0 },
     },
@@ -75,6 +79,7 @@ export function HomePage() {
       config: {
         chartType: "line",
         backgroundImage: "/images/calibration_bg.png",
+        className: "glass-card",
       },
       data: {
         labels: [],
@@ -89,6 +94,7 @@ export function HomePage() {
       config: {
         days: 60,
         backgroundImage: "/images/history_bg.png",
+        className: "glass-card",
       },
       data: [],
     },
@@ -110,11 +116,14 @@ export function HomePage() {
             0,
           ) / sessions.length
         : 0;
-    
+
     // Calculer le score moyen (utiliser consistency comme proxy si pas de score direct)
     const avgScore =
       sessions.length > 0
-        ? sessions.reduce((sum, s) => sum + (s.stats?.averageConsistency || 0), 0) / sessions.length
+        ? sessions.reduce(
+            (sum, s) => sum + (s.stats?.averageConsistency || 0),
+            0,
+          ) / sessions.length
         : 0;
 
     // Prepare chart data

@@ -56,6 +56,7 @@ export function WidgetRenderer({
             : ""
         }
         ${hasBackground ? "relative" : ""}
+        ${widget.config.className || ""}
       `}
     >
       {hasBackground && (
