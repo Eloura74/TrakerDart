@@ -11,6 +11,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { SubscriptionBadge } from "@/components/subscription/SubscriptionBadge";
 import { UsageProgress } from "@/components/subscription/UsageProgress";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { toast } from "sonner";
 import {
   getUserTier,
   getUserSubscription,
@@ -26,6 +28,7 @@ export function SubscriptionPage() {
   const [usageStats, setUsageStats] = useState<UsageStats[]>([]);
   const [subscription, setSubscription] = useState<any>(null);
   const [canceling, setCanceling] = useState(false);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
 
   useEffect(() => {
     loadSubscriptionData();
@@ -44,37 +47,33 @@ export function SubscriptionPage() {
       setUsageStats(usage);
     } catch (error) {
       console.error("Erreur chargement subscription:", error);
+      toast.error("Impossible de charger les données d'abonnement");
     } finally {
       setLoading(false);
     }
   };
 
   const handleCancelSubscription = async () => {
-    if (
-      !confirm(
-        "Êtes-vous sûr de vouloir annuler votre abonnement ?\\n\\nVous conserverez vos avantages jusqu'à la fin de la période en cours.",
-      )
-    ) {
-      return;
-    }
     try {
       setCanceling(true);
+      setShowCancelDialog(false);
       const success = await cancelSubscription();
       if (success) {
         const endDate = subscription?.currentPeriodEnd
           ? new Date(subscription.currentPeriodEnd).toLocaleDateString()
           : "";
-        alert(
-          "✅ Abonnement annulé avec succès.\\nVous conservez vos avantages jusqu'au " +
-            endDate,
-        );
+        toast.success("Abonnement annulé avec succès", {
+          description: `Vous conservez vos avantages jusqu'au ${endDate}`,
+        });
         await loadSubscriptionData();
       } else {
-        alert("❌ Erreur lors de l'annulation. Veuillez réessayer.");
+        toast.error("Erreur lors de l'annulation", {
+          description: "Veuillez réessayer plus tard",
+        });
       }
     } catch (error) {
       console.error("Erreur annulation:", error);
-      alert("❌ Erreur lors de l'annulation.");
+      toast.error("Erreur lors de l'annulation");
     } finally {
       setCanceling(false);
     }
@@ -84,14 +83,14 @@ export function SubscriptionPage() {
     try {
       const success = await reactivateSubscription();
       if (success) {
-        alert("✅ Abonnement réactivé avec succès !");
+        toast.success("Abonnement réactivé avec succès !");
         await loadSubscriptionData();
       } else {
-        alert("❌ Erreur lors de la réactivation.");
+        toast.error("Erreur lors de la réactivation");
       }
     } catch (error) {
       console.error("Erreur réactivation:", error);
-      alert("❌ Erreur lors de la réactivation.");
+      toast.error("Erreur lors de la réactivation");
     }
   };
 
@@ -113,8 +112,8 @@ export function SubscriptionPage() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
-                  <CardTitle className="flex items-center gap-2">
-                    <Crown className="h-5 w-5 text-primary" />
+                  <CardTitle className="flex items-center gap-2 font-heading text-2xl">
+                    <Crown className="h-6 w-6 text-primary" />
                     Plan Actuel
                   </CardTitle>
                   <CardDescription>Votre tier et avantages</CardDescription>
@@ -149,7 +148,9 @@ export function SubscriptionPage() {
               )}
 
               <div className="space-y-2">
-                <h3 className="font-semibold text-sm">Vos avantages :</h3>
+                <h3 className="font-semibold text-sm font-heading">
+                  Vos avantages :
+                </h3>
                 <div className="grid gap-2">
                   {tier === "free" && (
                     <>
@@ -183,7 +184,7 @@ export function SubscriptionPage() {
                 </div>
               </div>
 
-              <div className="flex gap-2 pt-4">
+              <div className="flex flex-col sm:flex-row gap-2 pt-4">
                 {tier === "free" && (
                   <Button
                     onClick={() => (window.location.hash = "#/pricing")}
@@ -203,18 +204,33 @@ export function SubscriptionPage() {
                   </Button>
                 )}
                 {tier !== "free" && !subscription?.cancelAtPeriodEnd && (
-                  <Button
-                    variant="outline"
-                    onClick={handleCancelSubscription}
-                    disabled={canceling}
-                  >
-                    {canceling ? "Annulation..." : "Annuler l'abonnement"}
-                  </Button>
+                  <>
+                    <Button
+                      variant="outline"
+                      onClick={() => setShowCancelDialog(true)}
+                      disabled={canceling}
+                      className="flex-1"
+                    >
+                      {canceling ? "Annulation..." : "Annuler l'abonnement"}
+                    </Button>
+
+                    <ConfirmDialog
+                      open={showCancelDialog}
+                      onOpenChange={setShowCancelDialog}
+                      title="Annuler l'abonnement ?"
+                      description="Vous conserverez vos avantages jusqu'à la fin de la période en cours. Voulez-vous vraiment continuer ?"
+                      confirmText="Oui, annuler"
+                      cancelText="Garder mon abonnement"
+                      variant="destructive"
+                      onConfirm={handleCancelSubscription}
+                    />
+                  </>
                 )}
                 {subscription?.cancelAtPeriodEnd && (
                   <Button
                     variant="default"
                     onClick={handleReactivateSubscription}
+                    className="flex-1"
                   >
                     Réactiver l'abonnement
                   </Button>
@@ -225,7 +241,9 @@ export function SubscriptionPage() {
 
           <Card className="border-white/10 bg-black/40 backdrop-blur-sm">
             <CardHeader>
-              <CardTitle>Utilisation Ce Mois</CardTitle>
+              <CardTitle className="font-heading text-xl">
+                Utilisation Ce Mois
+              </CardTitle>
               <CardDescription>
                 Suivez votre consommation des fonctionnalités
               </CardDescription>
@@ -252,7 +270,7 @@ export function SubscriptionPage() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="font-semibold mb-1">
+                  <h3 className="font-semibold mb-1 font-heading">
                     Découvrez tous nos plans
                   </h3>
                   <p className="text-sm text-muted-foreground">

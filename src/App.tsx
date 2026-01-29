@@ -9,25 +9,71 @@ import { supabase } from "@/lib/supabase";
 import { useAppStore } from "@/store/useAppStore";
 import { ErrorBoundary } from "@/components/errors/ErrorBoundary";
 import { Loader2 } from "lucide-react";
+import { Toaster } from "@/components/ui/sonner";
+import { AnimatePresence, motion } from "framer-motion";
 import "./index.css";
 
 // Lazy loading des pages pour optimiser le bundle initial
-const HomePage = lazy(() => import("./pages/HomePage").then(m => ({ default: m.HomePage })));
-const CapturePageAuto = lazy(() => import("./pages/CapturePageAuto").then(m => ({ default: m.CapturePageAuto })));
-const AnalysisPage = lazy(() => import("./pages/AnalysisPage").then(m => ({ default: m.AnalysisPage })));
-const ComparisonPage = lazy(() => import("./pages/ComparisonPage").then(m => ({ default: m.ComparisonPage })));
-const HistoryPage = lazy(() => import("./pages/HistoryPage").then(m => ({ default: m.HistoryPage })));
-const CalibrationPage = lazy(() => import("./pages/CalibrationPage").then(m => ({ default: m.CalibrationPage })));
-const LoginPage = lazy(() => import("./pages/auth/LoginPage").then(m => ({ default: m.LoginPage })));
-const RegisterPage = lazy(() => import("./pages/auth/RegisterPage").then(m => ({ default: m.RegisterPage })));
-const PricingPage = lazy(() => import("./pages/PricingPage").then(m => ({ default: m.PricingPage })));
-const DevPage = lazy(() => import("./pages/DevPage").then(m => ({ default: m.DevPage })));
-const SubscriptionPage = lazy(() => import("./pages/SubscriptionPage").then(m => ({ default: m.SubscriptionPage })));
-const SettingsPage = lazy(() => import("./pages/SettingsPage").then(m => ({ default: m.SettingsPage })));
-const AISettingsPage = lazy(() => import("./pages/AISettingsPage").then(m => ({ default: m.AISettingsPage })));
-const AIChatPage = lazy(() => import("./pages/AIChatPage").then(m => ({ default: m.AIChatPage })));
-const AITrainingPlanPage = lazy(() => import("./pages/AITrainingPlanPage").then(m => ({ default: m.AITrainingPlanPage })));
-const ArucoCalibrationPage = lazy(() => import("./pages/ArucoCalibrationPage").then(m => ({ default: m.ArucoCalibrationPage })));
+const HomePage = lazy(() =>
+  import("./pages/HomePage").then((m) => ({ default: m.HomePage })),
+);
+const CapturePageAuto = lazy(() =>
+  import("./pages/CapturePageAuto").then((m) => ({
+    default: m.CapturePageAuto,
+  })),
+);
+const AnalysisPage = lazy(() =>
+  import("./pages/AnalysisPage").then((m) => ({ default: m.AnalysisPage })),
+);
+const ComparisonPage = lazy(() =>
+  import("./pages/ComparisonPage").then((m) => ({ default: m.ComparisonPage })),
+);
+const HistoryPage = lazy(() =>
+  import("./pages/HistoryPage").then((m) => ({ default: m.HistoryPage })),
+);
+const CalibrationPage = lazy(() =>
+  import("./pages/CalibrationPage").then((m) => ({
+    default: m.CalibrationPage,
+  })),
+);
+const LoginPage = lazy(() =>
+  import("./pages/auth/LoginPage").then((m) => ({ default: m.LoginPage })),
+);
+const RegisterPage = lazy(() =>
+  import("./pages/auth/RegisterPage").then((m) => ({
+    default: m.RegisterPage,
+  })),
+);
+const PricingPage = lazy(() =>
+  import("./pages/PricingPage").then((m) => ({ default: m.PricingPage })),
+);
+const DevPage = lazy(() =>
+  import("./pages/DevPage").then((m) => ({ default: m.DevPage })),
+);
+const SubscriptionPage = lazy(() =>
+  import("./pages/SubscriptionPage").then((m) => ({
+    default: m.SubscriptionPage,
+  })),
+);
+const SettingsPage = lazy(() =>
+  import("./pages/SettingsPage").then((m) => ({ default: m.SettingsPage })),
+);
+const AISettingsPage = lazy(() =>
+  import("./pages/AISettingsPage").then((m) => ({ default: m.AISettingsPage })),
+);
+const AIChatPage = lazy(() =>
+  import("./pages/AIChatPage").then((m) => ({ default: m.AIChatPage })),
+);
+const AITrainingPlanPage = lazy(() =>
+  import("./pages/AITrainingPlanPage").then((m) => ({
+    default: m.AITrainingPlanPage,
+  })),
+);
+const ArucoCalibrationPage = lazy(() =>
+  import("./pages/ArucoCalibrationPage").then((m) => ({
+    default: m.ArucoCalibrationPage,
+  })),
+);
 
 /**
  * Router basique avec hash routing
@@ -189,8 +235,20 @@ function App() {
             </div>
           }
         >
-          {renderPage()}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentRoute}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3, ease: "easeOut" }}
+              className="w-full"
+            >
+              {renderPage()}
+            </motion.div>
+          </AnimatePresence>
         </Suspense>
+        <Toaster />
       </div>
     </ErrorBoundary>
   );

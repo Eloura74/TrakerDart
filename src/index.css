@@ -1,5 +1,6 @@
 /* Import global background gradient - DOIT être AVANT @tailwind */
-@import './styles/global-bg.css';
+@import "./styles/global-bg.css";
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap");
 
 /* Reset et configuration de base TailwindCSS */
 @tailwind base;
@@ -12,6 +13,10 @@
     /* Force Dark Mode - Void Black Background */
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
+
+    /* Typography */
+    --font-heading: "Outfit", sans-serif;
+    --font-body: "Inter", sans-serif;
 
     --card: 0 0% 3.9%;
     --card-foreground: 0 0% 98%;
@@ -187,7 +192,7 @@ canvas {
     -webkit-user-drag: none !important;
     user-select: none !important;
   }
-  
+
   .react-grid-item {
     touch-action: pan-y !important;
     -webkit-user-drag: none !important;
@@ -195,20 +200,20 @@ canvas {
     pointer-events: auto !important;
     position: static !important;
   }
-  
+
   .react-grid-item.react-draggable {
     cursor: default !important;
   }
-  
+
   .react-grid-item > .react-resizable-handle {
     display: none !important;
   }
-  
+
   /* Empêcher complètement le drag */
   .react-grid-item.react-grid-placeholder {
     display: none !important;
   }
-  
+
   .react-draggable,
   .react-draggable-dragging {
     transform: none !important;

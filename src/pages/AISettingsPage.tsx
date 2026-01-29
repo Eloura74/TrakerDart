@@ -3,21 +3,27 @@
  * Permet de configurer la clé API OpenAI et les paramètres du modèle
  */
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
-import { AIModelSelector } from '@/components/ai/AIModelSelector';
-import { AppHeader } from '@/components/layout/AppHeader';
-import { ArrowLeft, Key, Save, Eye, EyeOff, ExternalLink } from 'lucide-react';
-import type { AIModelConfig, AISettings } from '@/types/ai';
-import { DEFAULT_AI_SETTINGS } from '@/types/ai';
+import { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import { AIModelSelector } from "@/components/ai/AIModelSelector";
+import { AppHeader } from "@/components/layout/AppHeader";
+import { ArrowLeft, Key, Save, Eye, EyeOff, ExternalLink } from "lucide-react";
+import type { AIModelConfig, AISettings } from "@/types/ai";
+import { DEFAULT_AI_SETTINGS } from "@/types/ai";
 
 export function AISettingsPage() {
   const { toast } = useToast();
-  const [apiKey, setApiKey] = useState('');
+  const [apiKey, setApiKey] = useState("");
   const [showApiKey, setShowApiKey] = useState(false);
   const [settings, setSettings] = useState<AISettings>(DEFAULT_AI_SETTINGS);
   const [hasChanges, setHasChanges] = useState(false);
@@ -31,8 +37,8 @@ export function AISettingsPage() {
    * Charger les settings depuis localStorage
    */
   const loadSettings = () => {
-    const savedApiKey = localStorage.getItem('openai_api_key');
-    const savedSettings = localStorage.getItem('ai_settings');
+    const savedApiKey = localStorage.getItem("openai_api_key");
+    const savedSettings = localStorage.getItem("ai_settings");
 
     if (savedApiKey) {
       setApiKey(savedApiKey);
@@ -50,23 +56,23 @@ export function AISettingsPage() {
     try {
       // Sauvegarder l'API key
       if (apiKey.trim()) {
-        localStorage.setItem('openai_api_key', apiKey.trim());
+        localStorage.setItem("openai_api_key", apiKey.trim());
       }
 
       // Sauvegarder les settings
-      localStorage.setItem('ai_settings', JSON.stringify(settings));
+      localStorage.setItem("ai_settings", JSON.stringify(settings));
 
       setHasChanges(false);
 
       toast({
-        title: 'Configuration sauvegardée',
-        description: 'Vos paramètres IA ont été enregistrés avec succès.',
+        title: "Configuration sauvegardée",
+        description: "Vos paramètres IA ont été enregistrés avec succès.",
       });
     } catch (error) {
       toast({
-        title: 'Erreur',
-        description: 'Impossible de sauvegarder les paramètres.',
-        variant: 'destructive',
+        title: "Erreur",
+        description: "Impossible de sauvegarder les paramètres.",
+        variant: "destructive",
       });
     }
   };
@@ -86,8 +92,8 @@ export function AISettingsPage() {
     setSettings(DEFAULT_AI_SETTINGS);
     setHasChanges(true);
     toast({
-      title: 'Paramètres réinitialisés',
-      description: 'Les paramètres par défaut ont été restaurés.',
+      title: "Paramètres réinitialisés",
+      description: "Les paramètres par défaut ont été restaurés.",
     });
   };
 
@@ -97,18 +103,22 @@ export function AISettingsPage() {
 
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <Button
             variant="ghost"
+            size="sm"
             onClick={() => window.history.back()}
             className="mb-4"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Retour
+            <ArrowLeft className="h-4 w-4 sm:mr-2" />
+            <span className="hidden sm:inline">Retour</span>
           </Button>
-          <h1 className="text-3xl font-bold mb-2">Configuration IA Générative</h1>
-          <p className="text-muted-foreground">
-            Configurez votre clé API OpenAI et personnalisez les paramètres du modèle IA
+          <h1 className="text-2xl sm:text-3xl font-bold font-heading mb-2">
+            Configuration IA Générative
+          </h1>
+          <p className="text-sm sm:text-base text-muted-foreground">
+            Configurez votre clé API OpenAI et personnalisez les paramètres du
+            modèle IA
           </p>
         </div>
 
@@ -121,7 +131,7 @@ export function AISettingsPage() {
                 <CardTitle>Clé API OpenAI</CardTitle>
               </div>
               <CardDescription>
-                Obtenez votre clé API sur{' '}
+                Obtenez votre clé API sur{" "}
                 <a
                   href="https://platform.openai.com/api-keys"
                   target="_blank"
@@ -140,7 +150,7 @@ export function AISettingsPage() {
                   <div className="relative flex-1">
                     <Input
                       id="api-key"
-                      type={showApiKey ? 'text' : 'password'}
+                      type={showApiKey ? "text" : "password"}
                       value={apiKey}
                       onChange={(e) => {
                         setApiKey(e.target.value);
@@ -165,17 +175,18 @@ export function AISettingsPage() {
                   </div>
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  ⚠️ Votre clé API est stockée localement dans votre navigateur uniquement.
-                  Elle n'est jamais envoyée à nos serveurs.
+                  ⚠️ Votre clé API est stockée localement dans votre navigateur
+                  uniquement. Elle n'est jamais envoyée à nos serveurs.
                 </p>
               </div>
 
               {!apiKey && (
                 <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
                   <p className="text-sm text-yellow-200">
-                    <span className="font-medium">Important :</span> Sans clé API OpenAI,
-                    les fonctionnalités IA ne seront pas disponibles. L'utilisation de
-                    l'API OpenAI est facturée directement par OpenAI.
+                    <span className="font-medium">Important :</span> Sans clé
+                    API OpenAI, les fonctionnalités IA ne seront pas
+                    disponibles. L'utilisation de l'API OpenAI est facturée
+                    directement par OpenAI.
                   </p>
                 </div>
               )}
@@ -205,17 +216,22 @@ export function AISettingsPage() {
                   </p>
                 </div>
                 <Button
-                  variant={settings.autoGenerateRecommendations ? 'default' : 'outline'}
+                  variant={
+                    settings.autoGenerateRecommendations ? "default" : "outline"
+                  }
                   size="sm"
                   onClick={() => {
                     setSettings({
                       ...settings,
-                      autoGenerateRecommendations: !settings.autoGenerateRecommendations,
+                      autoGenerateRecommendations:
+                        !settings.autoGenerateRecommendations,
                     });
                     setHasChanges(true);
                   }}
                 >
-                  {settings.autoGenerateRecommendations ? 'Activé' : 'Désactivé'}
+                  {settings.autoGenerateRecommendations
+                    ? "Activé"
+                    : "Désactivé"}
                 </Button>
               </div>
 
@@ -227,7 +243,7 @@ export function AISettingsPage() {
                   </p>
                 </div>
                 <Button
-                  variant={settings.chatEnabled ? 'default' : 'outline'}
+                  variant={settings.chatEnabled ? "default" : "outline"}
                   size="sm"
                   onClick={() => {
                     setSettings({
@@ -237,7 +253,7 @@ export function AISettingsPage() {
                     setHasChanges(true);
                   }}
                 >
-                  {settings.chatEnabled ? 'Activé' : 'Désactivé'}
+                  {settings.chatEnabled ? "Activé" : "Désactivé"}
                 </Button>
               </div>
 
@@ -249,7 +265,7 @@ export function AISettingsPage() {
                   </p>
                 </div>
                 <Button
-                  variant={settings.trainingPlanEnabled ? 'default' : 'outline'}
+                  variant={settings.trainingPlanEnabled ? "default" : "outline"}
                   size="sm"
                   onClick={() => {
                     setSettings({
@@ -259,17 +275,18 @@ export function AISettingsPage() {
                     setHasChanges(true);
                   }}
                 >
-                  {settings.trainingPlanEnabled ? 'Activé' : 'Désactivé'}
+                  {settings.trainingPlanEnabled ? "Activé" : "Désactivé"}
                 </Button>
               </div>
             </CardContent>
           </Card>
 
           {/* Actions */}
-          <div className="flex items-center justify-between gap-4">
-            <Button
-              variant="outline"
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4">
+            <Button 
+              variant="outline" 
               onClick={resetSettings}
+              className="w-full sm:w-auto"
             >
               Réinitialiser
             </Button>
@@ -277,10 +294,11 @@ export function AISettingsPage() {
             <Button
               onClick={saveSettings}
               disabled={!hasChanges}
-              className="gap-2"
+              className="gap-2 w-full sm:w-auto"
             >
               <Save className="h-4 w-4" />
-              Sauvegarder les modifications
+              <span className="hidden sm:inline">Sauvegarder les modifications</span>
+              <span className="sm:hidden">Sauvegarder</span>
             </Button>
           </div>
         </div>

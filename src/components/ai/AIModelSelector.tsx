@@ -3,21 +3,27 @@
  * Interface simple pour changer de modèle facilement
  */
 
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Slider } from '@/components/ui/slider';
-import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
-import { Sparkles, Zap, DollarSign, Gauge, Star } from 'lucide-react';
-import type { AIModel, AIModelConfig } from '@/types/ai';
-import { AI_MODELS } from '@/types/ai';
+} from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
+import { Sparkles, Zap, DollarSign, Gauge, Star } from "lucide-react";
+import type { AIModel, AIModelConfig } from "@/types/ai";
+import { AI_MODELS } from "@/types/ai";
 
 interface AIModelSelectorProps {
   config: AIModelConfig;
@@ -28,7 +34,11 @@ interface AIModelSelectorProps {
   };
 }
 
-export function AIModelSelector({ config, onChange, usageStats }: AIModelSelectorProps) {
+export function AIModelSelector({
+  config,
+  onChange,
+  usageStats,
+}: AIModelSelectorProps) {
   const currentModel = AI_MODELS[config.model];
 
   return (
@@ -55,7 +65,9 @@ export function AIModelSelector({ config, onChange, usageStats }: AIModelSelecto
           <Label>Modèle IA</Label>
           <Select
             value={config.model}
-            onValueChange={(model) => onChange({ ...config, model: model as AIModel })}
+            onValueChange={(model) =>
+              onChange({ ...config, model: model as AIModel })
+            }
             disabled={!config.enabled}
           >
             <SelectTrigger>
@@ -65,8 +77,8 @@ export function AIModelSelector({ config, onChange, usageStats }: AIModelSelecto
               {Object.values(AI_MODELS).map((model) => (
                 <SelectItem key={model.id} value={model.id}>
                   <div className="flex items-center justify-between gap-4 w-full">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-medium">{model.name}</span>
                         {model.recommended && (
                           <Badge variant="secondary" className="text-xs">
@@ -75,7 +87,7 @@ export function AIModelSelector({ config, onChange, usageStats }: AIModelSelecto
                           </Badge>
                         )}
                       </div>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-muted-foreground line-clamp-1 hidden sm:line-clamp-2">
                         {model.description}
                       </p>
                     </div>
@@ -86,7 +98,7 @@ export function AIModelSelector({ config, onChange, usageStats }: AIModelSelecto
           </Select>
 
           {/* Infos modèle sélectionné */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-3 bg-muted/50 rounded-lg">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 p-3 bg-muted/50 rounded-lg">
             <div className="space-y-1">
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
                 <DollarSign className="h-3 w-3" />
@@ -136,7 +148,9 @@ export function AIModelSelector({ config, onChange, usageStats }: AIModelSelecto
           </div>
           <Slider
             value={[config.temperature]}
-            onValueChange={([temperature]) => onChange({ ...config, temperature })}
+            onValueChange={([temperature]) =>
+              onChange({ ...config, temperature })
+            }
             min={0}
             max={2}
             step={0.1}
@@ -144,10 +158,12 @@ export function AIModelSelector({ config, onChange, usageStats }: AIModelSelecto
             className="w-full"
           />
           <p className="text-xs text-muted-foreground">
-            {config.temperature < 0.5 && 'Précis et factuel'}
-            {config.temperature >= 0.5 && config.temperature < 1 && 'Équilibré (recommandé)'}
-            {config.temperature >= 1 && config.temperature < 1.5 && 'Créatif'}
-            {config.temperature >= 1.5 && 'Très créatif et varié'}
+            {config.temperature < 0.5 && "Précis et factuel"}
+            {config.temperature >= 0.5 &&
+              config.temperature < 1 &&
+              "Équilibré (recommandé)"}
+            {config.temperature >= 1 && config.temperature < 1.5 && "Créatif"}
+            {config.temperature >= 1.5 && "Très créatif et varié"}
           </p>
         </div>
 
@@ -169,9 +185,11 @@ export function AIModelSelector({ config, onChange, usageStats }: AIModelSelecto
             className="w-full"
           />
           <p className="text-xs text-muted-foreground">
-            {config.maxTokens < 500 && 'Réponses courtes'}
-            {config.maxTokens >= 500 && config.maxTokens < 1500 && 'Réponses moyennes (recommandé)'}
-            {config.maxTokens >= 1500 && 'Réponses détaillées'}
+            {config.maxTokens < 500 && "Réponses courtes"}
+            {config.maxTokens >= 500 &&
+              config.maxTokens < 1500 &&
+              "Réponses moyennes (recommandé)"}
+            {config.maxTokens >= 1500 && "Réponses détaillées"}
           </p>
         </div>
 
@@ -199,8 +217,9 @@ export function AIModelSelector({ config, onChange, usageStats }: AIModelSelecto
         {/* Note importante */}
         <div className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
           <p className="text-xs text-yellow-200">
-            <span className="font-medium">Note :</span> L'utilisation de l'IA nécessite une clé API OpenAI.
-            Les coûts sont facturés directement par OpenAI selon votre utilisation.
+            <span className="font-medium">Note :</span> L'utilisation de l'IA
+            nécessite une clé API OpenAI. Les coûts sont facturés directement
+            par OpenAI selon votre utilisation.
           </p>
         </div>
       </CardContent>
